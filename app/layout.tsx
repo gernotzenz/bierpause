@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   title: "Bierpause 🍺🚫",
   description: "Punkte-Challenge für alkoholfreie Wochen",
   manifest: "/manifest.json",
-  icons: { icon: "/icon-192.png", apple: "/icon-192.png" },
+  icons: { icon: "/app.jpg", apple: "/app.jpg" },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
