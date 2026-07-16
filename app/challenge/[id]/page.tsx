@@ -94,7 +94,7 @@ export default function ChallengePage() {
 
       <PushSetup userId={userId} />
 
-      <div className="flex gap-2 overflow-x-auto">
+      <div className="flex gap-2 overflow-x-auto pb-1.5 pr-1.5">
         {tabs.map((t) => (
           <button
             key={t.key}
