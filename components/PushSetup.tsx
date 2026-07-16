@@ -61,7 +61,7 @@ export default function PushSetup({ userId }: { userId: string }) {
         </p>
         <p className="text-xs text-stone-400">
           {state === "unsupported"
-            ? "Am iPhone: Seite über Teilen → „Zum Home-Bildschirm" installieren, dann hier aktivieren."
+            ? "Am iPhone: Seite über Teilen → 'Zum Home-Bildschirm' installieren, dann hier aktivieren."
             : state === "denied"
             ? "Benachrichtigungen sind blockiert – in den Browser-Einstellungen erlauben."
             : "Erfahre sofort, wenn dein Kumpel ein Badge holt."}
