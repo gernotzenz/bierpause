@@ -11,6 +11,7 @@ import CalendarTab from "@/components/CalendarTab";
 import RulesTab from "@/components/RulesTab";
 import StatsBar from "@/components/StatsBar";
 import BadgesTab from "@/components/BadgesTab";
+import PushSetup from "@/components/PushSetup";
 
 type Tab = "checkin" | "leaderboard" | "calendar" | "badges" | "rules";
 
@@ -90,6 +91,8 @@ export default function ChallengePage() {
       </div>
 
       <StatsBar challenge={challenge} userId={userId} rules={rules} />
+
+      <PushSetup userId={userId} />
 
       <div className="flex gap-2 overflow-x-auto">
         {tabs.map((t) => (

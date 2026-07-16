@@ -3,8 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Challenge, Rule, toISODate, weekIndex } from "@/lib/types";
+import Emoji from "@/components/Emoji";
 
-type Row = { user_id: string; date: string; rule_id: string };
+type Row = { user_id: string; date: string; rule_id: string; quantity: number };
 type Member = { user_id: string; name: string };
 
 export default function LeaderboardTab({
@@ -27,7 +28,7 @@ export default function LeaderboardTab({
           .eq("challenge_id", challenge.id),
         supabase
           .from("checkins")
-          .select("user_id, date, rule_id")
+          .select("user_id, date, rule_id, quantity")
           .eq("challenge_id", challenge.id),
       ]);
       setMembers(
@@ -60,7 +61,7 @@ export default function LeaderboardTab({
         const perWeek = Array.from({ length: challenge.weeks }, () => 0);
         let total = 0;
         for (const c of mine) {
-          const p = pointsByRule.get(c.rule_id) ?? 0;
+          const p = (pointsByRule.get(c.rule_id) ?? 0) * (c.quantity ?? 1);
           total += p;
           const w = weekIndex(c.date, challenge.start_date);
           if (w >= 0 && w < challenge.weeks) perWeek[w] += p;
@@ -80,7 +81,11 @@ export default function LeaderboardTab({
         {stats.map((s, i) => (
           <div key={s.user_id} className="card flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <span className="text-2xl">{medals[i] ?? `${i + 1}.`}</span>
+              {medals[i] ? (
+                <Emoji e={medals[i]} size={30} />
+              ) : (
+                <span className="text-xl text-stone-400">{i + 1}.</span>
+              )}
               <div>
                 <p className="font-semibold">{s.name}</p>
                 <p className="text-sm text-stone-400">

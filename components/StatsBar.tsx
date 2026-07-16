@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Challenge, Rule, addDays, toISODate } from "@/lib/types";
+import Emoji from "@/components/Emoji";
 
 // Annahmen für den Gespart-Zähler – hier anpassen:
 const BIER_PRO_TAG = 1.5; // Biere, die an einem normalen Tag getrunken worden wären
@@ -75,7 +76,9 @@ export default function StatsBar({
               : "border-stone-800 bg-stone-900"
           }`}
         >
-          <div className="text-xl">{s.icon}</div>
+          <div className="flex justify-center">
+            <Emoji e={s.icon} size={26} />
+          </div>
           <div
             className={`text-2xl font-bold ${
               s.highlight ? "text-amber-400" : "text-stone-100"

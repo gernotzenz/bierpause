@@ -1,0 +1,13 @@
+{
+  "name": "Bierpause",
+  "short_name": "Bierpause",
+  "description": "Punkte-Challenge für alkoholfreie Wochen",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0c0a09",
+  "theme_color": "#f59e0b",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Challenge, Rule, toISODate } from "@/lib/types";
 
-type Row = { date: string; rule_id: string };
+type Row = { date: string; rule_id: string; quantity: number };
 
 export default function CalendarTab({
   challenge,
@@ -26,7 +26,7 @@ export default function CalendarTab({
   useEffect(() => {
     supabase
       .from("checkins")
-      .select("date, rule_id")
+      .select("date, rule_id, quantity")
       .eq("challenge_id", challenge.id)
       .eq("user_id", userId)
       .gte("date", toISODate(first))
@@ -47,7 +47,7 @@ export default function CalendarTab({
       const r = ruleById.get(c.rule_id);
       if (!r) continue;
       const entry = m.get(c.date) ?? { points: 0, noAlcohol: false, any: false };
-      entry.points += r.points;
+      entry.points += r.points * (c.quantity ?? 1);
       entry.any = true;
       if (r.key === "no_alcohol" || r.key === "weekend_free") entry.noAlcohol = true;
       m.set(c.date, entry);

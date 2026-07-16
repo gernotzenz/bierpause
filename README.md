@@ -75,12 +75,34 @@ Dann im Browser: http://localhost:3000
 4. In Vercel unter Deployments → „Redeploy" klicken (Env-Variablen greifen erst nach neuem Deploy).
 5. In der App: Check-in-Tab → „Mit Strava verbinden" → autorisieren. Danach holt „Aktivitäten prüfen" die Einheiten des gewählten Tags und trägt Sport automatisch ein.
 
+**Punkte pro Sportstunde:** Der Strava-Import zählt die Gesamtminuten des Tages und trägt Sport mit `Regel-Punkte × gerundete Stunden` ein (2h-Ausfahrt bei 3 Punkten = +6). Dafür die Sport-Regel im Regeln-Tab auf den gewünschten Stundensatz stellen (z. B. 3) und einmalig `supabase/quantity.sql` im SQL Editor ausführen. Manuelles Abhaken zählt weiterhin als 1 Stunde.
+
 Hinweis: Neue Strava-Apps sind anfangs oft auf **einen** verbundenen Athleten limitiert. Wenn dein Kumpel sich nicht verbinden kann, in den Strava-API-Einstellungen eine Kapazitätserhöhung beantragen — oder er legt sich eine eigene Strava-App an.
+
+## Web Push / PWA (optional)
+
+Die App ist als PWA installierbar und pusht Badge-Erfolge an die anderen Mitglieder.
+
+1. **Supabase:** SQL Editor → Inhalt von `supabase/push.sql` ausführen.
+2. **Vercel → Environment Variables**, drei neue Einträge (VAPID-Schlüsselpaar; ein eigenes lässt sich z. B. auf vapidkeys.com generieren):
+   - `NEXT_PUBLIC_VAPID_PUBLIC_KEY` = Public Key
+   - `VAPID_PRIVATE_KEY` = Private Key
+   - `VAPID_SUBJECT` = `mailto:deine@mail.at`
+3. **Redeploy** in Vercel.
+4. In der App auf der Challenge-Seite: „🔔 Benachrichtigungen → Aktivieren" (jeder Teilnehmer auf jedem Gerät einmal).
+
+**iPhone:** Push funktioniert nur, wenn die Seite installiert ist: In Safari → Teilen → „Zum Home-Bildschirm". Danach die App vom Homescreen öffnen und Benachrichtigungen aktivieren. Android/Chrome funktioniert direkt im Browser.
+
+Gepusht wird, sobald jemand durch einen Check-in ein neues Badge freischaltet (z. B. „🔥 Gernot hat einen Erfolg! ‚Zwei Wochen trocken' freigeschaltet").
 
 ## Anpassungen
 
 - **Punkteregeln** ändert der Challenge-Ersteller direkt in der App (Tab „Regeln"), inkl. eigener Regeln wie „60 min Rad gefahren +2".
 - Die Sichtbarkeit ist per Row Level Security abgesichert: Mitglieder einer Challenge sehen gegenseitig Punkte und Check-ins, Außenstehende nichts. Jeder kann nur eigene Check-ins eintragen/löschen.
+
+## Credits
+
+Emojis von [OpenMoji](https://openmoji.org) (CC BY-SA 4.0), geladen via CDN.
 
 ## Hinweis
 
