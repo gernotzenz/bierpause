@@ -143,8 +143,6 @@ export default function CheckinTab({
         </div>
       </div>
 
-      <MoodImage rules={rules} checked={checked} date={date} />
-
       <StravaSection
         challenge={challenge}
         userId={userId}
@@ -209,74 +207,6 @@ export default function CheckinTab({
       <p className="text-xs text-[#3A2E1B]/60">
         Ehrlichkeit zählt – auch die Minuspunkte eintragen!
       </p>
-    </div>
-  );
-}
-
-/* ---------- Stimmungsbild des Tages ---------- */
-// drunk.png  → an dem Tag betrunken
-// sport.png  → Sport gemacht (z. B. via Strava übernommen)
-// ok.png     → kein Alkohol, aber auch kein Sport
-// Bilder liegen in public/ – fehlt eines, wird einfach nichts angezeigt.
-
-const MOODS = {
-  drunk: {
-    title: "Oida…",
-    text: "Das kostet Punkte. Morgen wieder angreifen!",
-    color: "text-red-700",
-  },
-  sport: {
-    title: "Stark!",
-    text: "Sporteinheit im Sack – Hunzn ist stolz auf dich.",
-    color: "text-emerald-700",
-  },
-  ok: {
-    title: "Sauber unterwegs",
-    text: "Kein Bier heute. Genau so bleibt der Streak am Leben.",
-    color: "text-amber-700",
-  },
-} as const;
-
-function MoodImage({
-  rules,
-  checked,
-  date,
-}: {
-  rules: Rule[];
-  checked: Map<string, number>;
-  date: string;
-}) {
-  const isChecked = (key: string) => {
-    const r = rules.find((r) => r.key === key);
-    return r ? checked.has(r.id) : false;
-  };
-
-  const mood: keyof typeof MOODS | null = isChecked("drunk")
-    ? "drunk"
-    : isChecked("sport")
-    ? "sport"
-    : isChecked("no_alcohol")
-    ? "ok"
-    : null;
-
-  if (!mood) return null;
-  const m = MOODS[mood];
-
-  return (
-    <div key={`${mood}-${date}`} className="card animate-pop flex items-center gap-4 py-3">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={`/${mood}.png`}
-        alt=""
-        className="w-20 shrink-0"
-        onError={(e) => {
-          e.currentTarget.style.display = "none";
-        }}
-      />
-      <div>
-        <p className={`font-display text-sm uppercase ${m.color}`}>{m.title}</p>
-        <p className="text-sm text-[#3A2E1B]/70">{m.text}</p>
-      </div>
     </div>
   );
 }
