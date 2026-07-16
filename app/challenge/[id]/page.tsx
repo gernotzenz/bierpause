@@ -9,6 +9,7 @@ import CheckinTab from "@/components/CheckinTab";
 import LeaderboardTab from "@/components/LeaderboardTab";
 import CalendarTab from "@/components/CalendarTab";
 import RulesTab from "@/components/RulesTab";
+import StatsBar from "@/components/StatsBar";
 
 type Tab = "checkin" | "leaderboard" | "calendar" | "rules";
 
@@ -85,6 +86,8 @@ export default function ChallengePage() {
         </div>
         <p className="text-stone-400">{status}</p>
       </div>
+
+      <StatsBar challenge={challenge} userId={userId} rules={rules} />
 
       <div className="flex gap-2 overflow-x-auto">
         {tabs.map((t) => (
