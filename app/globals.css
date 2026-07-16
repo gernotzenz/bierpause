@@ -27,6 +27,24 @@ body {
   @apply rounded-xl border-2 border-[#3A2E1B] bg-[#FBF3DF] px-4 py-2 font-semibold text-[#3A2E1B] shadow-[3px_3px_0_#3A2E1B] transition hover:bg-[#F0E3C2];
 }
 
+@keyframes pop {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  80% {
+    transform: scale(1.06);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-pop {
+  animation: pop 0.4s ease-out;
+}
+
 .input {
   @apply w-full rounded-xl border-2 border-[#3A2E1B] bg-white/70 px-3 py-2 text-[#3A2E1B] outline-none focus:border-[#E0A82E];
 }
