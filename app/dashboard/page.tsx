@@ -80,23 +80,23 @@ export default function DashboardPage() {
     router.replace("/login");
   }
 
-  if (loading) return <p className="text-center text-stone-400">Lade…</p>;
+  if (loading) return <p className="text-center text-[#3A2E1B]/70">Lade…</p>;
 
   const today = toISODate(new Date());
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">🍺🚫 Bierpause</h1>
+        <h1 className="font-display text-2xl uppercase text-[#3A2E1B]">Bierpause</h1>
         <button className="btn-ghost text-sm" onClick={logout}>
           Abmelden
         </button>
       </div>
 
       <section className="space-y-3">
-        <h2 className="text-lg font-semibold text-stone-300">Deine Challenges</h2>
+        <h2 className="text-lg font-semibold text-[#3A2E1B]/80">Deine Challenges</h2>
         {challenges.length === 0 && (
-          <p className="text-stone-500">
+          <p className="text-[#3A2E1B]/60">
             Noch keine Challenge – erstelle eine oder tritt per Code bei.
           </p>
         )}
@@ -112,14 +112,14 @@ export default function DashboardPage() {
             <Link
               key={c.id}
               href={`/challenge/${c.id}`}
-              className="card block transition hover:border-amber-500"
+              className="card block transition hover:border-amber-600"
             >
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-semibold">{c.name}</p>
-                  <p className="text-sm text-stone-400">{status}</p>
+                  <p className="text-sm text-[#3A2E1B]/70">{status}</p>
                 </div>
-                <span className="text-amber-500">→</span>
+                <span className="text-amber-700">→</span>
               </div>
             </Link>
           );
@@ -136,7 +136,7 @@ export default function DashboardPage() {
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
-          <label className="block text-sm text-stone-400">
+          <label className="block text-sm text-[#3A2E1B]/70">
             Start
             <input
               className="input mt-1"
@@ -146,7 +146,7 @@ export default function DashboardPage() {
               onChange={(e) => setStartDate(e.target.value)}
             />
           </label>
-          <label className="block text-sm text-stone-400">
+          <label className="block text-sm text-[#3A2E1B]/70">
             Dauer
             <select
               className="input mt-1"
@@ -164,7 +164,7 @@ export default function DashboardPage() {
 
         <form onSubmit={joinChallenge} className="card space-y-3">
           <h3 className="font-semibold">Challenge beitreten</h3>
-          <p className="text-sm text-stone-400">
+          <p className="text-sm text-[#3A2E1B]/70">
             Gib den 6-stelligen Einladungscode ein, den dir dein Freund geschickt hat.
           </p>
           <input
@@ -181,7 +181,7 @@ export default function DashboardPage() {
         </form>
       </div>
 
-      {error && <p className="text-sm text-red-400">{error}</p>}
+      {error && <p className="text-sm text-red-700">{error}</p>}
     </div>
   );
 }

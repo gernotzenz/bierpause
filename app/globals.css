@@ -1,23 +1,32 @@
+@import url("https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* Retro-Palette: Creme #F4E8CC · Tinte #3A2E1B · Senf #E0A82E · Papier #FBF3DF */
+
 body {
-  @apply bg-stone-950 text-stone-100 antialiased;
+  @apply bg-[#F4E8CC] text-[#3A2E1B] antialiased;
+}
+
+.font-display {
+  font-family: "Archivo Black", "Arial Black", sans-serif;
+  letter-spacing: 0.02em;
 }
 
 .card {
-  @apply rounded-2xl border border-stone-800 bg-stone-900 p-5;
+  @apply rounded-2xl border-2 border-[#3A2E1B] bg-[#FBF3DF] p-5 shadow-[4px_4px_0_#3A2E1B];
 }
 
 .btn {
-  @apply rounded-xl bg-amber-500 px-4 py-2 font-semibold text-stone-950 transition hover:bg-amber-400 disabled:opacity-50;
+  @apply rounded-xl border-2 border-[#3A2E1B] bg-[#E0A82E] px-4 py-2 font-bold text-[#3A2E1B] shadow-[3px_3px_0_#3A2E1B] transition hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0_#3A2E1B] disabled:opacity-50;
 }
 
 .btn-ghost {
-  @apply rounded-xl border border-stone-700 px-4 py-2 text-stone-300 transition hover:bg-stone-800;
+  @apply rounded-xl border-2 border-[#3A2E1B] bg-[#FBF3DF] px-4 py-2 font-semibold text-[#3A2E1B] shadow-[3px_3px_0_#3A2E1B] transition hover:bg-[#F0E3C2];
 }
 
 .input {
-  @apply w-full rounded-xl border border-stone-700 bg-stone-800 px-3 py-2 text-stone-100 outline-none focus:border-amber-500;
+  @apply w-full rounded-xl border-2 border-[#3A2E1B] bg-white/70 px-3 py-2 text-[#3A2E1B] outline-none focus:border-[#E0A82E];
 }

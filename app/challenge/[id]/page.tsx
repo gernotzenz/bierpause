@@ -48,7 +48,7 @@ export default function ChallengePage() {
   }, [id, router, loadRules]);
 
   if (!challenge || !userId)
-    return <p className="text-center text-stone-400">Lade…</p>;
+    return <p className="text-center text-[#3A2E1B]/70">Lade…</p>;
 
   const today = toISODate(new Date());
   const wk = weekIndex(today, challenge.start_date);
@@ -78,16 +78,16 @@ export default function ChallengePage() {
   return (
     <div className="space-y-5">
       <div>
-        <Link href="/dashboard" className="text-sm text-stone-400 hover:text-amber-500">
+        <Link href="/dashboard" className="text-sm text-[#3A2E1B]/70 hover:text-amber-700">
           ← Zurück
         </Link>
         <div className="mt-1 flex flex-wrap items-center justify-between gap-2">
-          <h1 className="text-2xl font-bold">{challenge.name}</h1>
+          <h1 className="font-display text-3xl uppercase text-[#3A2E1B]">{challenge.name}</h1>
           <button className="btn-ghost text-sm" onClick={copyCode}>
             {copied ? "Kopiert ✓" : `Einladungscode: ${challenge.invite_code}`}
           </button>
         </div>
-        <p className="text-stone-400">{status}</p>
+        <p className="text-[#3A2E1B]/70">{status}</p>
       </div>
 
       <StatsBar challenge={challenge} userId={userId} rules={rules} />

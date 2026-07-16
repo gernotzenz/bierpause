@@ -94,7 +94,7 @@ export default function CalendarTab({
         </button>
       </div>
 
-      <div className="grid grid-cols-7 gap-1 text-center text-xs text-stone-500">
+      <div className="grid grid-cols-7 gap-1 text-center text-xs text-[#3A2E1B]/60">
         {["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"].map((d) => (
           <div key={d} className="py-1">
             {d}
@@ -116,18 +116,18 @@ export default function CalendarTab({
                     challenge.weeks * 7 * 86400000
                 )
               );
-          let cls = "border-stone-800 bg-stone-900 text-stone-500";
+          let cls = "border-[#3A2E1B] bg-[#FBF3DF] text-[#3A2E1B]/60";
           if (info) {
-            if (info.points < 0) cls = "border-red-600 bg-red-950/50 text-red-300";
+            if (info.points < 0) cls = "border-red-700 bg-red-100 text-red-800";
             else if (info.noAlcohol)
-              cls = "border-emerald-600 bg-emerald-950/50 text-emerald-300";
-            else cls = "border-stone-600 bg-stone-800 text-stone-200";
+              cls = "border-emerald-700 bg-emerald-100 text-emerald-800";
+            else cls = "border-[#8A6E2F] bg-[#EBDDBB] text-[#3A2E1B]";
           }
           return (
             <div
               key={iso}
               className={`flex aspect-square flex-col items-center justify-center rounded-lg border text-sm ${cls} ${
-                iso === today ? "ring-2 ring-amber-500" : ""
+                iso === today ? "ring-2 ring-amber-600" : ""
               } ${!inChallenge ? "opacity-40" : ""}`}
             >
               <span>{day}</span>
@@ -141,17 +141,17 @@ export default function CalendarTab({
         })}
       </div>
 
-      <div className="flex flex-wrap gap-4 text-xs text-stone-400">
+      <div className="flex flex-wrap gap-4 text-xs text-[#3A2E1B]/70">
         <span>
-          <span className="mr-1 inline-block h-3 w-3 rounded bg-emerald-800" />
+          <span className="mr-1 inline-block h-3 w-3 rounded bg-emerald-600" />
           alkoholfrei
         </span>
         <span>
-          <span className="mr-1 inline-block h-3 w-3 rounded bg-red-900" />
+          <span className="mr-1 inline-block h-3 w-3 rounded bg-red-600" />
           Ausrutscher
         </span>
         <span>
-          <span className="mr-1 inline-block h-3 w-3 rounded bg-stone-700" />
+          <span className="mr-1 inline-block h-3 w-3 rounded bg-[#D8C79E]" />
           Punkte ohne Alkohol-Check
         </span>
       </div>

@@ -40,5 +40,5 @@ export default function StravaCallbackPage() {
     run();
   }, [router]);
 
-  return <p className="mt-16 text-center text-stone-400">{status}</p>;
+  return <p className="mt-16 text-center text-[#3A2E1B]/70">{status}</p>;
 }

@@ -72,8 +72,8 @@ export default function StatsBar({
           key={s.label}
           className={`rounded-2xl border p-3 text-center ${
             s.highlight
-              ? "border-amber-500 bg-amber-950/30"
-              : "border-stone-800 bg-stone-900"
+              ? "border-amber-600 bg-amber-100"
+              : "border-[#3A2E1B] bg-[#FBF3DF]"
           }`}
         >
           <div className="flex justify-center">
@@ -81,12 +81,12 @@ export default function StatsBar({
           </div>
           <div
             className={`text-2xl font-bold ${
-              s.highlight ? "text-amber-400" : "text-stone-100"
+              s.highlight ? "text-amber-700" : "text-[#3A2E1B]"
             }`}
           >
             {s.value}
           </div>
-          <div className="text-xs text-stone-400">{s.label}</div>
+          <div className="text-xs text-[#3A2E1B]/70">{s.label}</div>
         </div>
       ))}
     </div>

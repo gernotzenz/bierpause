@@ -113,7 +113,7 @@ export default function CheckinTab({
       />
 
       <div className="card flex flex-wrap items-center justify-between gap-3">
-        <label className="text-sm text-stone-400">
+        <label className="text-sm text-[#3A2E1B]/70">
           Tag
           <input
             className="input mt-1"
@@ -125,14 +125,14 @@ export default function CheckinTab({
           />
         </label>
         <div className="text-right">
-          <p className="text-sm text-stone-400">Punkte an diesem Tag</p>
+          <p className="text-sm text-[#3A2E1B]/70">Punkte an diesem Tag</p>
           <p
             className={`text-3xl font-bold ${
               dayTotal > 0
-                ? "text-emerald-400"
+                ? "text-emerald-700"
                 : dayTotal < 0
-                ? "text-red-400"
-                : "text-stone-300"
+                ? "text-red-700"
+                : "text-[#3A2E1B]/80"
             }`}
           >
             {dayTotal > 0 ? `+${dayTotal}` : dayTotal}
@@ -163,12 +163,12 @@ export default function CheckinTab({
               key={rule.id}
               onClick={() => toggle(rule)}
               disabled={disabled || busy === rule.id}
-              className={`flex w-full items-center justify-between rounded-2xl border p-4 text-left transition ${
+              className={`flex w-full items-center justify-between rounded-2xl border-2 p-4 text-left transition ${
                 isOn
                   ? rule.points >= 0
-                    ? "border-emerald-500 bg-emerald-950/40"
-                    : "border-red-500 bg-red-950/40"
-                  : "border-stone-800 bg-stone-900 hover:border-stone-600"
+                    ? "border-emerald-700 bg-emerald-100"
+                    : "border-red-700 bg-red-100"
+                  : "border-[#3A2E1B] bg-[#FBF3DF] hover:border-[#8A6E2F]"
               } ${disabled ? "opacity-40" : ""}`}
             >
               <span className="flex items-center gap-2">
@@ -176,12 +176,12 @@ export default function CheckinTab({
                 <span>
                   {rule.label}
                   {isOn && qty! > 1 && (
-                    <span className="ml-2 text-xs font-semibold text-amber-400">
+                    <span className="ml-2 text-xs font-semibold text-amber-700">
                       ×{qty}
                     </span>
                   )}
                   {rule.weekend_only && (
-                    <span className="ml-2 text-xs text-stone-500">
+                    <span className="ml-2 text-xs text-[#3A2E1B]/60">
                       (nur Sa/So)
                     </span>
                   )}
@@ -189,7 +189,7 @@ export default function CheckinTab({
               </span>
               <span
                 className={`font-bold ${
-                  rule.points >= 0 ? "text-emerald-400" : "text-red-400"
+                  rule.points >= 0 ? "text-emerald-700" : "text-red-700"
                 }`}
               >
                 {effective > 0 ? `+${effective}` : effective}
@@ -199,8 +199,8 @@ export default function CheckinTab({
         })}
       </div>
 
-      {error && <p className="text-sm text-red-400">{error}</p>}
-      <p className="text-xs text-stone-500">
+      {error && <p className="text-sm text-red-700">{error}</p>}
+      <p className="text-xs text-[#3A2E1B]/60">
         Ehrlichkeit zählt – auch die Minuspunkte eintragen!
       </p>
     </div>
@@ -246,7 +246,22 @@ function WeekProgress({
       });
   }, [challenge, userId, rules, wk, version]);
 
-  if (wk < 0 || wk >= challenge.weeks) return null;
+  if (wk < 0) {
+    const days = Math.max(
+      1,
+      Math.ceil(
+        (parseISODate(challenge.start_date).getTime() - Date.now()) / 86400000
+      )
+    );
+    return (
+      <div className="card flex items-center gap-2 text-sm text-[#3A2E1B]/70">
+        <Emoji e="🏁" size={18} />
+        Challenge startet in {days} {days === 1 ? "Tag" : "Tagen"} – ab dann
+        siehst du hier deinen Wochenfortschritt.
+      </div>
+    );
+  }
+  if (wk >= challenge.weeks) return null;
 
   const maxWeek = rules
     .filter((r) => r.points > 0)
@@ -265,18 +280,18 @@ function WeekProgress({
         <span className="font-semibold">
           Woche {wk + 1} von {challenge.weeks}
         </span>
-        <span className="flex items-center gap-1 text-stone-400">
+        <span className="flex items-center gap-1 text-[#3A2E1B]/70">
           noch {daysLeft} {daysLeft === 1 ? "Tag" : "Tage"} bis zum Ziel{" "}
           <Emoji e="🏁" size={16} />
         </span>
       </div>
-      <div className="h-3 w-full overflow-hidden rounded-full bg-stone-800">
+      <div className="h-3 w-full overflow-hidden rounded-full bg-[#EBDDBB]">
         <div
           className="h-full rounded-full bg-gradient-to-r from-amber-500 to-emerald-500 transition-all"
           style={{ width: `${pct}%` }}
         />
       </div>
-      <p className="text-xs text-stone-400">
+      <p className="text-xs text-[#3A2E1B]/70">
         {weekPoints} von {maxWeek} möglichen Punkten diese Woche
       </p>
     </div>
@@ -390,10 +405,10 @@ function StravaSection({
   }
 
   return (
-    <div className="card flex flex-wrap items-center justify-between gap-3 border-orange-900/60">
+    <div className="card flex flex-wrap items-center justify-between gap-3 border-orange-700/40">
       <div>
-        <p className="font-semibold text-orange-400">Strava</p>
-        <p className="text-xs text-stone-400">
+        <p className="font-semibold text-orange-700">Strava</p>
+        <p className="text-xs text-[#3A2E1B]/70">
           {connected
             ? `Verbunden als ${athlete || "Athlet"} – ${sportRule.points} Punkte pro Sportstunde`
             : "Verbinde Strava und übernimm Aktivitäten automatisch als Sport."}
@@ -413,7 +428,7 @@ function StravaSection({
           Mit Strava verbinden
         </button>
       )}
-      {msg && <p className="w-full text-sm text-stone-300">{msg}</p>}
+      {msg && <p className="w-full text-sm text-[#3A2E1B]/80">{msg}</p>}
     </div>
   );
 }

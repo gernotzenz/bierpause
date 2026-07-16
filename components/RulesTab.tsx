@@ -61,16 +61,16 @@ export default function RulesTab({
         <h3 className="mb-3 font-semibold">Punkteregeln</h3>
         <ul className="space-y-2">
           {rules.map((r) => (
-            <li key={r.id} className="flex justify-between border-b border-stone-800 pb-2">
+            <li key={r.id} className="flex justify-between border-b border-[#3A2E1B] pb-2">
               <span>
                 {r.label}
                 {r.weekend_only && (
-                  <span className="ml-2 text-xs text-stone-500">(nur Sa/So)</span>
+                  <span className="ml-2 text-xs text-[#3A2E1B]/60">(nur Sa/So)</span>
                 )}
               </span>
               <span
                 className={`font-bold ${
-                  r.points >= 0 ? "text-emerald-400" : "text-red-400"
+                  r.points >= 0 ? "text-emerald-700" : "text-red-700"
                 }`}
               >
                 {r.points > 0 ? `+${r.points}` : r.points}
@@ -78,7 +78,7 @@ export default function RulesTab({
             </li>
           ))}
         </ul>
-        <p className="mt-3 text-xs text-stone-500">
+        <p className="mt-3 text-xs text-[#3A2E1B]/60">
           Nur der Ersteller der Challenge kann Regeln ändern.
         </p>
       </div>
@@ -116,7 +116,7 @@ export default function RulesTab({
         </div>
       </form>
 
-      {error && <p className="text-sm text-red-400">{error}</p>}
+      {error && <p className="text-sm text-red-700">{error}</p>}
     </div>
   );
 }
@@ -135,7 +135,7 @@ function RuleEditor({
   const dirty = label !== rule.label || points !== rule.points;
 
   return (
-    <div className="flex flex-wrap items-center gap-2 border-b border-stone-800 pb-3">
+    <div className="flex flex-wrap items-center gap-2 border-b border-[#3A2E1B] pb-3">
       <input
         className="input flex-1"
         value={label}

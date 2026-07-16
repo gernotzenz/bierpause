@@ -71,7 +71,7 @@ export default function LeaderboardTab({
       .sort((a, b) => b.total - a.total);
   }, [members, checkins, pointsByRule, challenge, currentWeek]);
 
-  if (loading) return <p className="text-stone-400">Lade…</p>;
+  if (loading) return <p className="text-[#3A2E1B]/70">Lade…</p>;
 
   const medals = ["🥇", "🥈", "🥉"];
 
@@ -84,18 +84,18 @@ export default function LeaderboardTab({
               {medals[i] ? (
                 <Emoji e={medals[i]} size={30} />
               ) : (
-                <span className="text-xl text-stone-400">{i + 1}.</span>
+                <span className="text-xl text-[#3A2E1B]/70">{i + 1}.</span>
               )}
               <div>
                 <p className="font-semibold">{s.name}</p>
-                <p className="text-sm text-stone-400">
+                <p className="text-sm text-[#3A2E1B]/70">
                   Diese Woche: {s.thisWeek > 0 ? `+${s.thisWeek}` : s.thisWeek} Punkte
                 </p>
               </div>
             </div>
             <p
               className={`text-2xl font-bold ${
-                s.total >= 0 ? "text-emerald-400" : "text-red-400"
+                s.total >= 0 ? "text-emerald-700" : "text-red-700"
               }`}
             >
               {s.total}
@@ -108,13 +108,13 @@ export default function LeaderboardTab({
         <h3 className="mb-3 font-semibold">Wochenverlauf</h3>
         <table className="w-full text-sm">
           <thead>
-            <tr className="text-left text-stone-400">
+            <tr className="text-left text-[#3A2E1B]/70">
               <th className="pb-2 pr-3">Name</th>
               {Array.from({ length: challenge.weeks }, (_, w) => (
                 <th
                   key={w}
                   className={`pb-2 pr-3 text-center ${
-                    w === currentWeek ? "text-amber-500" : ""
+                    w === currentWeek ? "text-amber-700" : ""
                   }`}
                 >
                   W{w + 1}
@@ -124,17 +124,17 @@ export default function LeaderboardTab({
           </thead>
           <tbody>
             {stats.map((s) => (
-              <tr key={s.user_id} className="border-t border-stone-800">
+              <tr key={s.user_id} className="border-t border-[#3A2E1B]">
                 <td className="py-2 pr-3 font-medium">{s.name}</td>
                 {s.perWeek.map((p, w) => (
                   <td
                     key={w}
                     className={`py-2 pr-3 text-center ${
                       p > 0
-                        ? "text-emerald-400"
+                        ? "text-emerald-700"
                         : p < 0
-                        ? "text-red-400"
-                        : "text-stone-600"
+                        ? "text-red-700"
+                        : "text-[#3A2E1B]/40"
                     }`}
                   >
                     {p !== 0 ? p : "·"}

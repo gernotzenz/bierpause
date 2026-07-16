@@ -13,5 +13,5 @@ export default function Home() {
     });
   }, [router]);
 
-  return <p className="text-center text-stone-400">Lade…</p>;
+  return <p className="text-center text-[#3A2E1B]/70">Lade…</p>;
 }

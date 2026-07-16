@@ -54,12 +54,12 @@ export default function PushSetup({ userId }: { userId: string }) {
   }
 
   return (
-    <div className="card flex flex-wrap items-center justify-between gap-3 border-sky-900/60">
+    <div className="card flex flex-wrap items-center justify-between gap-3 border-sky-800/40">
       <div>
-        <p className="flex items-center gap-2 font-semibold text-sky-400">
+        <p className="flex items-center gap-2 font-semibold text-sky-800">
           <Emoji e="🔔" size={18} /> Benachrichtigungen
         </p>
-        <p className="text-xs text-stone-400">
+        <p className="text-xs text-[#3A2E1B]/70">
           {state === "unsupported"
             ? "Am iPhone: Seite über Teilen → 'Zum Home-Bildschirm' installieren, dann hier aktivieren."
             : state === "denied"
@@ -73,7 +73,7 @@ export default function PushSetup({ userId }: { userId: string }) {
         </button>
       )}
       {state === "loading" && (
-        <span className="text-sm text-stone-400">Aktiviere…</span>
+        <span className="text-sm text-[#3A2E1B]/70">Aktiviere…</span>
       )}
     </div>
   );

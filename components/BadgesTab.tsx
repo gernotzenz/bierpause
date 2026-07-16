@@ -35,13 +35,13 @@ export default function BadgesTab({
     [challenge, rules, checkins]
   );
 
-  if (loading) return <p className="text-stone-400">Lade…</p>;
+  if (loading) return <p className="text-[#3A2E1B]/70">Lade…</p>;
 
   const unlockedCount = badges.filter((b) => b.unlocked).length;
 
   return (
     <div className="space-y-4">
-      <p className="text-stone-400">
+      <p className="text-[#3A2E1B]/70">
         {unlockedCount} von {badges.length} Erfolgen freigeschaltet
       </p>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -49,16 +49,16 @@ export default function BadgesTab({
           <div
             key={b.key}
             className={`card text-center transition ${
-              b.unlocked ? "border-amber-500/60" : "opacity-40 grayscale"
+              b.unlocked ? "border-amber-600" : "opacity-40 grayscale"
             }`}
           >
             <div className="flex justify-center">
               <Emoji e={b.icon} size={44} />
             </div>
             <p className="mt-2 font-semibold">{b.title}</p>
-            <p className="text-xs text-stone-400">{b.desc}</p>
+            <p className="text-xs text-[#3A2E1B]/70">{b.desc}</p>
             {b.unlocked && (
-              <p className="mt-1 text-xs font-semibold text-amber-400">
+              <p className="mt-1 text-xs font-semibold text-amber-700">
                 Freigeschaltet ✓
               </p>
             )}

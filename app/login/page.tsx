@@ -40,10 +40,17 @@ export default function LoginPage() {
 
   return (
     <div className="mx-auto mt-16 max-w-sm">
-      <h1 className="mb-1 text-center text-3xl font-bold">🍺🚫 Bierpause</h1>
-      <p className="mb-8 text-center text-stone-400">
-        Punkte sammeln statt Bier trinken.
-      </p>
+      <div className="mb-8 text-center">
+        <p className="font-display text-xs uppercase tracking-[0.35em] text-[#3A2E1B]/60">
+          Zeit für eine
+        </p>
+        <h1 className="font-display text-5xl uppercase leading-tight text-[#3A2E1B]">
+          Bierpause
+        </h1>
+        <p className="mt-2 font-display text-[11px] uppercase tracking-[0.25em] text-[#3A2E1B]/60">
+          Punkte statt Promille
+        </p>
+      </div>
 
       <div className="card">
         <div className="mb-5 flex gap-2">
@@ -94,8 +101,8 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
-        {info && <p className="mt-3 text-sm text-emerald-400">{info}</p>}
+        {error && <p className="mt-3 text-sm text-red-700">{error}</p>}
+        {info && <p className="mt-3 text-sm text-emerald-700">{info}</p>}
       </div>
     </div>
   );
