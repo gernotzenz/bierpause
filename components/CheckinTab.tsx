@@ -482,3 +482,27 @@ function StravaSection({
     <div className="card flex flex-wrap items-center justify-between gap-3 border-orange-700/40">
       <div>
         <p className="font-semibold text-orange-700">Strava</p>
+        <p className="text-xs text-[#3A2E1B]/70">
+          {connected
+            ? `Verbunden als ${athlete || "Athlet"} – ${sportRule.points} Punkte pro Sportstunde`
+            : "Verbinde Strava und übernimm Aktivitäten automatisch als Sport."}
+        </p>
+      </div>
+      {connected ? (
+        <button
+          className="btn-ghost flex items-center gap-2 text-sm"
+          onClick={importFromStrava}
+          disabled={loading}
+        >
+          <Emoji e="🚴" size={18} />
+          {loading ? "Prüfe…" : "Aktivitäten prüfen"}
+        </button>
+      ) : (
+        <button className="btn text-sm" onClick={connect}>
+          Mit Strava verbinden
+        </button>
+      )}
+      {msg && <p className="w-full text-sm text-[#3A2E1B]/80">{msg}</p>}
+    </div>
+  );
+}
