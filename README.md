@@ -62,6 +62,21 @@ Dann im Browser: http://localhost:3000
 2. Auf der Challenge-Seite den **Einladungscode** kopieren und dem Kumpel schicken.
 3. Er registriert sich und tritt per Code bei. Ab dann: täglich einchecken, Leaderboard beobachten. 🚴
 
+## Strava-Anbindung (optional)
+
+Übernimmt Rad-/Sporteinheiten automatisch als Sport-Check-in.
+
+1. **Strava-App anlegen:** [strava.com/settings/api](https://www.strava.com/settings/api) → App erstellen. Bei „Authorization Callback Domain" die Vercel-Domain **ohne** `https://` eintragen (z. B. `bierpause.vercel.app`). `Client ID` und `Client Secret` notieren.
+2. **Supabase:** SQL Editor → Inhalt von `supabase/strava.sql` ausführen.
+3. **Vercel → Settings → Environment Variables**, drei neue Einträge:
+   - `NEXT_PUBLIC_STRAVA_CLIENT_ID` = Client ID
+   - `STRAVA_CLIENT_SECRET` = Client Secret
+   - `SUPABASE_SERVICE_ROLE_KEY` = Supabase → Project Settings → API Keys → `service_role` (secret) — niemals mit `NEXT_PUBLIC_` prefixen!
+4. In Vercel unter Deployments → „Redeploy" klicken (Env-Variablen greifen erst nach neuem Deploy).
+5. In der App: Check-in-Tab → „Mit Strava verbinden" → autorisieren. Danach holt „Aktivitäten prüfen" die Einheiten des gewählten Tags und trägt Sport automatisch ein.
+
+Hinweis: Neue Strava-Apps sind anfangs oft auf **einen** verbundenen Athleten limitiert. Wenn dein Kumpel sich nicht verbinden kann, in den Strava-API-Einstellungen eine Kapazitätserhöhung beantragen — oder er legt sich eine eigene Strava-App an.
+
 ## Anpassungen
 
 - **Punkteregeln** ändert der Challenge-Ersteller direkt in der App (Tab „Regeln"), inkl. eigener Regeln wie „60 min Rad gefahren +2".

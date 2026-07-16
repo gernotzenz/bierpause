@@ -10,8 +10,9 @@ import LeaderboardTab from "@/components/LeaderboardTab";
 import CalendarTab from "@/components/CalendarTab";
 import RulesTab from "@/components/RulesTab";
 import StatsBar from "@/components/StatsBar";
+import BadgesTab from "@/components/BadgesTab";
 
-type Tab = "checkin" | "leaderboard" | "calendar" | "rules";
+type Tab = "checkin" | "leaderboard" | "calendar" | "badges" | "rules";
 
 export default function ChallengePage() {
   const { id } = useParams<{ id: string }>();
@@ -63,6 +64,7 @@ export default function ChallengePage() {
     { key: "checkin", label: "Check-in" },
     { key: "leaderboard", label: "Leaderboard" },
     { key: "calendar", label: "Kalender" },
+    { key: "badges", label: "Erfolge" },
     { key: "rules", label: "Regeln" },
   ];
 
@@ -113,6 +115,9 @@ export default function ChallengePage() {
       )}
       {tab === "calendar" && (
         <CalendarTab challenge={challenge} userId={userId} rules={rules} />
+      )}
+      {tab === "badges" && (
+        <BadgesTab challenge={challenge} userId={userId} rules={rules} />
       )}
       {tab === "rules" && (
         <RulesTab

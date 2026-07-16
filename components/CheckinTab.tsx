@@ -2,7 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { Challenge, Rule, parseISODate, toISODate } from "@/lib/types";
+import {
+  Challenge,
+  Rule,
+  addDays,
+  parseISODate,
+  toISODate,
+  weekIndex,
+} from "@/lib/types";
 
 export default function CheckinTab({
   challenge,
@@ -18,6 +25,7 @@ export default function CheckinTab({
   const [checked, setChecked] = useState<Set<string>>(new Set()); // rule_ids
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [version, setVersion] = useState(0); // triggert WeekProgress-Reload
 
   const load = useCallback(async () => {
     const { data } = await supabase
@@ -58,6 +66,7 @@ export default function CheckinTab({
       if (error) setError(error.message);
     }
     setBusy(null);
+    setVersion((v) => v + 1);
     load();
   }
 
@@ -71,6 +80,13 @@ export default function CheckinTab({
 
   return (
     <div className="space-y-4">
+      <WeekProgress
+        challenge={challenge}
+        userId={userId}
+        rules={rules}
+        version={version}
+      />
+
       <div className="card flex flex-wrap items-center justify-between gap-3">
         <label className="text-sm text-stone-400">
           Tag
@@ -98,6 +114,18 @@ export default function CheckinTab({
           </p>
         </div>
       </div>
+
+      <StravaSection
+        challenge={challenge}
+        userId={userId}
+        rules={rules}
+        date={date}
+        checked={checked}
+        onImported={() => {
+          setVersion((v) => v + 1);
+          load();
+        }}
+      />
 
       <div className="space-y-2">
         {rules.map((rule) => {
@@ -139,6 +167,191 @@ export default function CheckinTab({
       <p className="text-xs text-stone-500">
         Ehrlichkeit zählt – auch die Minuspunkte eintragen! 😉
       </p>
+    </div>
+  );
+}
+
+/* ---------- Wochenfortschritt ---------- */
+
+function WeekProgress({
+  challenge,
+  userId,
+  rules,
+  version,
+}: {
+  challenge: Challenge;
+  userId: string;
+  rules: Rule[];
+  version: number;
+}) {
+  const [weekPoints, setWeekPoints] = useState(0);
+  const today = toISODate(new Date());
+  const wk = weekIndex(today, challenge.start_date);
+
+  useEffect(() => {
+    if (wk < 0 || wk >= challenge.weeks) return;
+    const start = addDays(parseISODate(challenge.start_date), wk * 7);
+    const end = addDays(start, 6);
+    supabase
+      .from("checkins")
+      .select("rule_id")
+      .eq("challenge_id", challenge.id)
+      .eq("user_id", userId)
+      .gte("date", toISODate(start))
+      .lte("date", toISODate(end))
+      .then(({ data }) => {
+        const points = new Map(rules.map((r) => [r.id, r.points]));
+        setWeekPoints(
+          ((data ?? []) as any[]).reduce(
+            (s, c) => s + (points.get(c.rule_id) ?? 0),
+            0
+          )
+        );
+      });
+  }, [challenge, userId, rules, wk, version]);
+
+  if (wk < 0 || wk >= challenge.weeks) return null;
+
+  const maxWeek = rules
+    .filter((r) => r.points > 0)
+    .reduce((s, r) => s + (r.weekend_only ? r.points : r.points * 7), 0);
+  const pct = Math.max(0, Math.min(100, maxWeek ? (weekPoints / maxWeek) * 100 : 0));
+
+  const endDate = addDays(parseISODate(challenge.start_date), challenge.weeks * 7);
+  const daysLeft = Math.max(
+    0,
+    Math.ceil((endDate.getTime() - Date.now()) / 86400000)
+  );
+
+  return (
+    <div className="card space-y-2">
+      <div className="flex items-center justify-between text-sm">
+        <span className="font-semibold">
+          Woche {wk + 1} von {challenge.weeks}
+        </span>
+        <span className="text-stone-400">
+          noch {daysLeft} {daysLeft === 1 ? "Tag" : "Tage"} bis zum Ziel 🏁
+        </span>
+      </div>
+      <div className="h-3 w-full overflow-hidden rounded-full bg-stone-800">
+        <div
+          className="h-full rounded-full bg-gradient-to-r from-amber-500 to-emerald-500 transition-all"
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+      <p className="text-xs text-stone-400">
+        {weekPoints} von {maxWeek} möglichen Punkten diese Woche
+      </p>
+    </div>
+  );
+}
+
+/* ---------- Strava ---------- */
+
+type StravaActivity = { name: string; type: string; minutes: number };
+
+function StravaSection({
+  challenge,
+  userId,
+  rules,
+  date,
+  checked,
+  onImported,
+}: {
+  challenge: Challenge;
+  userId: string;
+  rules: Rule[];
+  date: string;
+  checked: Set<string>;
+  onImported: () => void;
+}) {
+  const [connected, setConnected] = useState<boolean | null>(null);
+  const [athlete, setAthlete] = useState<string>("");
+  const [loading, setLoading] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
+  const sportRule = rules.find((r) => r.key === "sport");
+  const clientId = process.env.NEXT_PUBLIC_STRAVA_CLIENT_ID;
+
+  useEffect(() => {
+    supabase
+      .from("strava_tokens")
+      .select("athlete_name")
+      .eq("user_id", userId)
+      .maybeSingle()
+      .then(({ data }) => {
+        setConnected(!!data);
+        setAthlete(data?.athlete_name ?? "");
+      });
+  }, [userId]);
+
+  useEffect(() => {
+    setMsg(null);
+  }, [date]);
+
+  if (!clientId || !sportRule || connected === null) return null;
+
+  function connect() {
+    localStorage.setItem("strava_return", window.location.pathname);
+    const redirect = `${window.location.origin}/strava/callback`;
+    window.location.href =
+      `https://www.strava.com/oauth/authorize?client_id=${clientId}` +
+      `&response_type=code&redirect_uri=${encodeURIComponent(redirect)}` +
+      `&approval_prompt=auto&scope=read,activity:read`;
+  }
+
+  async function importFromStrava() {
+    setLoading(true);
+    setMsg(null);
+    const { data: sess } = await supabase.auth.getSession();
+    const token = sess.session?.access_token;
+    const res = await fetch(`/api/strava/activities?date=${date}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const body = await res.json();
+    setLoading(false);
+    if (!res.ok) return setMsg(`Fehler: ${body.error ?? res.status}`);
+
+    const acts = (body.activities ?? []) as StravaActivity[];
+    if (acts.length === 0) {
+      return setMsg(`Keine Strava-Aktivität am ${date} gefunden.`);
+    }
+    const summary = acts
+      .map((a) => `${a.name} (${a.minutes} min)`)
+      .join(", ");
+    if (checked.has(sportRule!.id)) {
+      return setMsg(`🚴 ${summary} – Sport war schon eingetragen ✓`);
+    }
+    const { error } = await supabase.from("checkins").insert({
+      challenge_id: challenge.id,
+      user_id: userId,
+      rule_id: sportRule!.id,
+      date,
+    });
+    if (error) return setMsg(`Fehler: ${error.message}`);
+    setMsg(`🚴 ${summary} → Sport eingetragen ✅ (+${sportRule!.points})`);
+    onImported();
+  }
+
+  return (
+    <div className="card flex flex-wrap items-center justify-between gap-3 border-orange-900/60">
+      <div>
+        <p className="font-semibold text-orange-400">Strava</p>
+        <p className="text-xs text-stone-400">
+          {connected
+            ? `Verbunden als ${athlete || "Athlet"}`
+            : "Verbinde Strava und übernimm Aktivitäten automatisch als Sport."}
+        </p>
+      </div>
+      {connected ? (
+        <button className="btn-ghost text-sm" onClick={importFromStrava} disabled={loading}>
+          {loading ? "Prüfe…" : "🚴 Aktivitäten prüfen"}
+        </button>
+      ) : (
+        <button className="btn text-sm" onClick={connect}>
+          Mit Strava verbinden
+        </button>
+      )}
+      {msg && <p className="w-full text-sm text-stone-300">{msg}</p>}
     </div>
   );
 }
