@@ -23,6 +23,7 @@ export default function ChallengePage() {
   const [rules, setRules] = useState<Rule[]>([]);
   const [tab, setTab] = useState<Tab>("checkin");
   const [copied, setCopied] = useState(false);
+  const [statsVersion, setStatsVersion] = useState(0);
 
   const loadRules = useCallback(async () => {
     const { data } = await supabase
@@ -90,7 +91,12 @@ export default function ChallengePage() {
         <p className="text-[#3A2E1B]/70">{status}</p>
       </div>
 
-      <StatsBar challenge={challenge} userId={userId} rules={rules} />
+      <StatsBar
+        challenge={challenge}
+        userId={userId}
+        rules={rules}
+        version={statsVersion}
+      />
 
       <PushSetup userId={userId} />
 
@@ -111,7 +117,12 @@ export default function ChallengePage() {
       </div>
 
       {tab === "checkin" && (
-        <CheckinTab challenge={challenge} userId={userId} rules={rules} />
+        <CheckinTab
+          challenge={challenge}
+          userId={userId}
+          rules={rules}
+          onChanged={() => setStatsVersion((v) => v + 1)}
+        />
       )}
       {tab === "leaderboard" && (
         <LeaderboardTab challenge={challenge} rules={rules} />
