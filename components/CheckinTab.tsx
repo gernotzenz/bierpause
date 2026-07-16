@@ -143,6 +143,8 @@ export default function CheckinTab({
         </div>
       </div>
 
+      <MoodImage rules={rules} checked={checked} date={date} />
+
       <StravaSection
         challenge={challenge}
         userId={userId}
@@ -155,8 +157,6 @@ export default function CheckinTab({
           load();
         }}
       />
-
-      <MoodImage rules={rules} checked={checked} date={date} />
 
       <div className="space-y-2">
         {rules.map((rule) => {
@@ -219,6 +219,24 @@ export default function CheckinTab({
 // ok.png     → kein Alkohol, aber auch kein Sport
 // Bilder liegen in public/ – fehlt eines, wird einfach nichts angezeigt.
 
+const MOODS = {
+  drunk: {
+    title: "Oida…",
+    text: "Das kostet Punkte. Morgen wieder angreifen!",
+    color: "text-red-700",
+  },
+  sport: {
+    title: "Stark!",
+    text: "Sporteinheit im Sack – Hunzn ist stolz auf dich.",
+    color: "text-emerald-700",
+  },
+  ok: {
+    title: "Sauber unterwegs",
+    text: "Kein Bier heute. Genau so bleibt der Streak am Leben.",
+    color: "text-amber-700",
+  },
+} as const;
+
 function MoodImage({
   rules,
   checked,
@@ -233,7 +251,7 @@ function MoodImage({
     return r ? checked.has(r.id) : false;
   };
 
-  const mood = isChecked("drunk")
+  const mood: keyof typeof MOODS | null = isChecked("drunk")
     ? "drunk"
     : isChecked("sport")
     ? "sport"
@@ -242,18 +260,24 @@ function MoodImage({
     : null;
 
   if (!mood) return null;
+  const m = MOODS[mood];
 
   return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      key={`${mood}-${date}`}
-      src={`/${mood}.png`}
-      alt=""
-      className="animate-pop mx-auto w-44"
-      onError={(e) => {
-        e.currentTarget.style.display = "none";
-      }}
-    />
+    <div key={`${mood}-${date}`} className="card animate-pop flex items-center gap-4 py-3">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={`/${mood}.png`}
+        alt=""
+        className="w-20 shrink-0"
+        onError={(e) => {
+          e.currentTarget.style.display = "none";
+        }}
+      />
+      <div>
+        <p className={`font-display text-sm uppercase ${m.color}`}>{m.title}</p>
+        <p className="text-sm text-[#3A2E1B]/70">{m.text}</p>
+      </div>
+    </div>
   );
 }
 
@@ -458,27 +482,3 @@ function StravaSection({
     <div className="card flex flex-wrap items-center justify-between gap-3 border-orange-700/40">
       <div>
         <p className="font-semibold text-orange-700">Strava</p>
-        <p className="text-xs text-[#3A2E1B]/70">
-          {connected
-            ? `Verbunden als ${athlete || "Athlet"} – ${sportRule.points} Punkte pro Sportstunde`
-            : "Verbinde Strava und übernimm Aktivitäten automatisch als Sport."}
-        </p>
-      </div>
-      {connected ? (
-        <button
-          className="btn-ghost flex items-center gap-2 text-sm"
-          onClick={importFromStrava}
-          disabled={loading}
-        >
-          <Emoji e="🚴" size={18} />
-          {loading ? "Prüfe…" : "Aktivitäten prüfen"}
-        </button>
-      ) : (
-        <button className="btn text-sm" onClick={connect}>
-          Mit Strava verbinden
-        </button>
-      )}
-      {msg && <p className="w-full text-sm text-[#3A2E1B]/80">{msg}</p>}
-    </div>
-  );
-}
