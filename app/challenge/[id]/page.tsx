@@ -12,6 +12,7 @@ import RulesTab from "@/components/RulesTab";
 import StatsBar from "@/components/StatsBar";
 import BadgesTab from "@/components/BadgesTab";
 import PushSetup from "@/components/PushSetup";
+import DayStatus from "@/components/DayStatus";
 
 type Tab = "checkin" | "leaderboard" | "calendar" | "badges" | "rules";
 
@@ -24,6 +25,7 @@ export default function ChallengePage() {
   const [tab, setTab] = useState<Tab>("checkin");
   const [copied, setCopied] = useState(false);
   const [statsVersion, setStatsVersion] = useState(0);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const loadRules = useCallback(async () => {
     const { data } = await supabase
@@ -76,19 +78,67 @@ export default function ChallengePage() {
     setTimeout(() => setCopied(false), 1500);
   }
 
+  async function logout() {
+    await supabase.auth.signOut();
+    router.replace("/login");
+  }
+
   return (
     <div className="space-y-5">
-      <div>
+      <div className="flex items-center justify-between">
         <Link href="/dashboard" className="text-sm text-[#3A2E1B]/70 hover:text-amber-700">
           ← Zurück
         </Link>
-        <div className="mt-1 flex flex-wrap items-center justify-between gap-2">
-          <h1 className="font-display text-3xl uppercase text-[#3A2E1B]">{challenge.name}</h1>
-          <button className="btn-ghost text-sm" onClick={copyCode}>
-            {copied ? "Kopiert ✓" : `Einladungscode: ${challenge.invite_code}`}
+        <button
+          className="btn-ghost px-3 text-xl leading-none"
+          onClick={() => setMenuOpen((o) => !o)}
+          aria-label="Menü"
+        >
+          {menuOpen ? "✕" : "☰"}
+        </button>
+      </div>
+
+      {menuOpen && (
+        <div className="card space-y-3">
+          <div>
+            <p className="font-semibold">{challenge.name}</p>
+            <p className="text-sm text-[#3A2E1B]/70">{status}</p>
+          </div>
+          <div className="flex items-center justify-between gap-3 rounded-xl border-2 border-[#3A2E1B]/30 p-3">
+            <div>
+              <p className="text-xs text-[#3A2E1B]/60">Einladungscode</p>
+              <p className="font-display text-xl">{challenge.invite_code}</p>
+            </div>
+            <button className="btn text-sm" onClick={copyCode}>
+              {copied ? "Kopiert ✓" : "Kopieren"}
+            </button>
+          </div>
+          <button
+            className="btn-ghost w-full"
+            onClick={() => {
+              setTab("rules");
+              setMenuOpen(false);
+            }}
+          >
+            ⚙ Regeln & Einstellungen
+          </button>
+          <button className="btn-ghost w-full" onClick={logout}>
+            Abmelden
           </button>
         </div>
-        <p className="text-[#3A2E1B]/70">{status}</p>
+      )}
+
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="font-display text-3xl uppercase text-[#3A2E1B]">{challenge.name}</h1>
+          <p className="text-[#3A2E1B]/70">{status}</p>
+        </div>
+        <DayStatus
+          challenge={challenge}
+          userId={userId}
+          rules={rules}
+          version={statsVersion}
+        />
       </div>
 
       <StatsBar
