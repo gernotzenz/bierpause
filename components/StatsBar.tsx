@@ -14,10 +14,12 @@ export default function StatsBar({
   challenge,
   userId,
   rules,
+  version = 0,
 }: {
   challenge: Challenge;
   userId: string;
   rules: Rule[];
+  version?: number;
 }) {
   const [dates, setDates] = useState<Set<string>>(new Set());
   const noAlcoholRule = rules.find((r) => r.key === "no_alcohol");
@@ -34,7 +36,7 @@ export default function StatsBar({
       .then(({ data }) =>
         setDates(new Set(((data ?? []) as { date: string }[]).map((c) => c.date)))
       );
-  }, [challenge.id, userId, ruleId]);
+  }, [challenge.id, userId, ruleId, version]);
 
   const { streak, freeDays } = useMemo(() => {
     const freeDays = dates.size;
