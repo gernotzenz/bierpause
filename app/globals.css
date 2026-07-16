@@ -7,7 +7,7 @@
 /* Retro-Palette: Creme #F4E8CC · Tinte #3A2E1B · Senf #E0A82E · Papier #FBF3DF */
 
 body {
-  @apply bg-[#f1dec6] text-[#3A2E1B] antialiased;
+  @apply bg-[#F5E0C5] text-[#3A2E1B] antialiased;
 }
 
 .font-display {
