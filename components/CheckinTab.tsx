@@ -35,10 +35,12 @@ export default function CheckinTab({
   challenge,
   userId,
   rules,
+  onChanged,
 }: {
   challenge: Challenge;
   userId: string;
   rules: Rule[];
+  onChanged?: () => void;
 }) {
   const today = toISODate(new Date());
   const [date, setDate] = useState(today);
@@ -91,6 +93,7 @@ export default function CheckinTab({
     }
     setBusy(null);
     setVersion((v) => v + 1);
+    onChanged?.();
     load();
   }
 
@@ -148,9 +151,12 @@ export default function CheckinTab({
         checked={checked}
         onImported={() => {
           setVersion((v) => v + 1);
+          onChanged?.();
           load();
         }}
       />
+
+      <MoodImage rules={rules} checked={checked} date={date} />
 
       <div className="space-y-2">
         {rules.map((rule) => {
@@ -204,6 +210,50 @@ export default function CheckinTab({
         Ehrlichkeit zählt – auch die Minuspunkte eintragen!
       </p>
     </div>
+  );
+}
+
+/* ---------- Stimmungsbild des Tages ---------- */
+// drunk.png  → an dem Tag betrunken
+// sport.png  → Sport gemacht (z. B. via Strava übernommen)
+// ok.png     → kein Alkohol, aber auch kein Sport
+// Bilder liegen in public/ – fehlt eines, wird einfach nichts angezeigt.
+
+function MoodImage({
+  rules,
+  checked,
+  date,
+}: {
+  rules: Rule[];
+  checked: Map<string, number>;
+  date: string;
+}) {
+  const isChecked = (key: string) => {
+    const r = rules.find((r) => r.key === key);
+    return r ? checked.has(r.id) : false;
+  };
+
+  const mood = isChecked("drunk")
+    ? "drunk"
+    : isChecked("sport")
+    ? "sport"
+    : isChecked("no_alcohol")
+    ? "ok"
+    : null;
+
+  if (!mood) return null;
+
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      key={`${mood}-${date}`}
+      src={`/${mood}.png`}
+      alt=""
+      className="animate-pop mx-auto w-44"
+      onError={(e) => {
+        e.currentTarget.style.display = "none";
+      }}
+    />
   );
 }
 
