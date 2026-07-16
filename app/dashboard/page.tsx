@@ -200,10 +200,10 @@ export default function DashboardPage() {
             })}
           </section>
 
-          {/* Maskottchen – erscheint automatisch, sobald public/hero.jpg existiert */}
+          {/* Maskottchen – erscheint automatisch, sobald public/hunzn.jpg existiert */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/hero.jpg"
+            src="/hunzn.jpg"
             alt="Time to break – time to beer"
             className="mx-auto w-full max-w-sm rounded-2xl border-2 border-[#3A2E1B] shadow-[4px_4px_0_#3A2E1B]"
             onError={(e) => {
