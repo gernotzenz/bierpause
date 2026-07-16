@@ -48,6 +48,20 @@ export default function CheckinTab({
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [version, setVersion] = useState(0); // triggert WeekProgress-Reload
+  const [stravaConnected, setStravaConnected] = useState(false);
+  const [athleteName, setAthleteName] = useState("");
+
+  useEffect(() => {
+    supabase
+      .from("strava_tokens")
+      .select("athlete_name")
+      .eq("user_id", userId)
+      .maybeSingle()
+      .then(({ data }) => {
+        setStravaConnected(!!data);
+        setAthleteName(data?.athlete_name ?? "");
+      });
+  }, [userId]);
 
   const load = useCallback(async () => {
     const { data } = await supabase
@@ -149,6 +163,8 @@ export default function CheckinTab({
         rules={rules}
         date={date}
         checked={checked}
+        connected={stravaConnected}
+        athlete={athleteName}
         onImported={() => {
           setVersion((v) => v + 1);
           onChanged?.();
@@ -157,7 +173,9 @@ export default function CheckinTab({
       />
 
       <div className="space-y-2">
-        {rules.map((rule) => {
+        {rules
+          .filter((r) => !(r.key === "sport" && stravaConnected))
+          .map((rule) => {
           const disabled = rule.weekend_only && !isWeekend;
           const qty = checked.get(rule.id);
           const isOn = qty !== undefined;
@@ -312,6 +330,8 @@ function StravaSection({
   rules,
   date,
   checked,
+  connected,
+  athlete,
   onImported,
 }: {
   challenge: Challenge;
@@ -319,32 +339,22 @@ function StravaSection({
   rules: Rule[];
   date: string;
   checked: Map<string, number>;
+  connected: boolean;
+  athlete: string;
   onImported: () => void;
 }) {
-  const [connected, setConnected] = useState<boolean | null>(null);
-  const [athlete, setAthlete] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const sportRule = rules.find((r) => r.key === "sport");
   const clientId = process.env.NEXT_PUBLIC_STRAVA_CLIENT_ID;
 
   useEffect(() => {
-    supabase
-      .from("strava_tokens")
-      .select("athlete_name")
-      .eq("user_id", userId)
-      .maybeSingle()
-      .then(({ data }) => {
-        setConnected(!!data);
-        setAthlete(data?.athlete_name ?? "");
-      });
-  }, [userId]);
-
-  useEffect(() => {
     setMsg(null);
   }, [date]);
 
-  if (!clientId || !sportRule || connected === null) return null;
+  if (!clientId || !sportRule) return null;
+
+  const sportQty = checked.get(sportRule.id);
 
   function connect() {
     localStorage.setItem("strava_return", window.location.pathname);
@@ -417,6 +427,12 @@ function StravaSection({
             ? `Verbunden als ${athlete || "Athlet"} – ${sportRule.points} Punkte pro Sportstunde`
             : "Verbinde Strava und übernimm Aktivitäten automatisch als Sport."}
         </p>
+        {connected && sportQty !== undefined && (
+          <p className="mt-1 text-xs font-semibold text-emerald-700">
+            ✓ {sportQty} {sportQty === 1 ? "Stunde" : "Stunden"} Sport an diesem
+            Tag (+{sportRule.points * sportQty})
+          </p>
+        )}
       </div>
       {connected ? (
         <button
