@@ -40,11 +40,13 @@ export default function CheckinTab({
   userId,
   rules,
   onChanged,
+  onDateChange,
 }: {
   challenge: Challenge;
   userId: string;
   rules: Rule[];
   onChanged?: () => void;
+  onDateChange?: (date: string) => void;
 }) {
   const today = toISODate(new Date());
   const [date, setDate] = useState(today);
@@ -163,7 +165,10 @@ export default function CheckinTab({
             value={date}
             min={challenge.start_date}
             max={today}
-            onChange={(e) => setDate(e.target.value)}
+            onChange={(e) => {
+              setDate(e.target.value);
+              onDateChange?.(e.target.value);
+            }}
           />
         </label>
         <div className="text-right">
