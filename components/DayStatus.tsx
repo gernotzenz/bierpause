@@ -29,15 +29,17 @@ export default function DayStatus({
   challenge,
   userId,
   rules,
+  date,
   version = 0,
 }: {
   challenge: Challenge;
   userId: string;
   rules: Rule[];
+  date?: string; // gewählter Tag; Standard: heute
   version?: number;
 }) {
   const [ids, setIds] = useState<Set<string>>(new Set());
-  const today = toISODate(new Date());
+  const day = date ?? toISODate(new Date());
 
   useEffect(() => {
     supabase
@@ -45,18 +47,19 @@ export default function DayStatus({
       .select("rule_id")
       .eq("challenge_id", challenge.id)
       .eq("user_id", userId)
-      .eq("date", today)
+      .eq("date", day)
       .then(({ data }) =>
         setIds(new Set(((data ?? []) as any[]).map((c) => c.rule_id)))
       );
-  }, [challenge.id, userId, today, version]);
+  }, [challenge.id, userId, day, version]);
 
   const has = (key: string) => {
     const r = rules.find((r) => r.key === key);
     return r ? ids.has(r.id) : false;
   };
 
-  const mood: keyof typeof MOODS | null = has("drunk")
+  // Alkohol schlägt Sport: auch "mehr als 2 Bier" zeigt den betrunkenen Hunzn
+  const mood: keyof typeof MOODS | null = has("drunk") || has("too_many")
     ? "drunk"
     : has("sport")
     ? "sport"
@@ -69,7 +72,7 @@ export default function DayStatus({
 
   return (
     <div
-      key={mood}
+      key={`${mood}-${day}`}
       className="card animate-pop flex max-w-sm items-center gap-3 px-4 py-2"
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
