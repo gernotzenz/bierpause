@@ -26,6 +26,7 @@ export default function ChallengePage() {
   const [copied, setCopied] = useState(false);
   const [statsVersion, setStatsVersion] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [activeDate, setActiveDate] = useState(toISODate(new Date()));
 
   const loadRules = useCallback(async () => {
     const { data } = await supabase
@@ -137,6 +138,7 @@ export default function ChallengePage() {
           challenge={challenge}
           userId={userId}
           rules={rules}
+          date={activeDate}
           version={statsVersion}
         />
       </div>
@@ -172,6 +174,7 @@ export default function ChallengePage() {
           userId={userId}
           rules={rules}
           onChanged={() => setStatsVersion((v) => v + 1)}
+          onDateChange={setActiveDate}
         />
       )}
       {tab === "leaderboard" && (
