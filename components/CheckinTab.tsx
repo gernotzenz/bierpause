@@ -31,6 +31,10 @@ async function notifyBadges(challengeId: string) {
   }
 }
 
+// Diese Gruppen schließen sich am selben Tag gegenseitig aus:
+const CLEAN_KEYS = ["no_alcohol", "weekend_free"];
+const DIRTY_KEYS = ["too_many", "drunk"];
+
 export default function CheckinTab({
   challenge,
   userId,
@@ -102,8 +106,29 @@ export default function CheckinTab({
         date,
         quantity: 1,
       });
-      if (error) setError(error.message);
-      else notifyBadges(challenge.id);
+      if (error) {
+        setError(error.message);
+      } else {
+        // Widersprüche am selben Tag auflösen (kein Alkohol vs. Bier getrunken)
+        const conflictKeys = DIRTY_KEYS.includes(rule.key)
+          ? CLEAN_KEYS
+          : CLEAN_KEYS.includes(rule.key)
+          ? DIRTY_KEYS
+          : [];
+        const conflictIds = rules
+          .filter((r) => conflictKeys.includes(r.key))
+          .map((r) => r.id);
+        if (conflictIds.length > 0) {
+          await supabase
+            .from("checkins")
+            .delete()
+            .eq("challenge_id", challenge.id)
+            .eq("user_id", userId)
+            .eq("date", date)
+            .in("rule_id", conflictIds);
+        }
+        notifyBadges(challenge.id);
+      }
     }
     setBusy(null);
     setVersion((v) => v + 1);
