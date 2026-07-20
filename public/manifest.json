@@ -4,7 +4,7 @@
   "description": "Punkte-Challenge für alkoholfreie Wochen",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "##F5E0C5",
+  "background_color": "#f1dec6",
   "theme_color": "#E0A82E",
   "icons": [
     { "src": "/app.jpeg", "sizes": "512x512", "type": "image/jpeg" },

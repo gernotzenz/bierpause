@@ -13,6 +13,7 @@ import StatsBar from "@/components/StatsBar";
 import BadgesTab from "@/components/BadgesTab";
 import PushSetup from "@/components/PushSetup";
 import DayStatus from "@/components/DayStatus";
+import Emoji from "@/components/Emoji";
 
 type Tab = "checkin" | "leaderboard" | "calendar" | "badges" | "rules";
 
@@ -65,12 +66,12 @@ export default function ChallengePage() {
 
   const isOwner = challenge.owner_id === userId;
 
-  const tabs: { key: Tab; label: string }[] = [
-    { key: "checkin", label: "Check-in" },
-    { key: "leaderboard", label: "Leaderboard" },
-    { key: "calendar", label: "Kalender" },
-    { key: "badges", label: "Erfolge" },
-    { key: "rules", label: "Regeln" },
+  const tabs: { key: Tab; label: string; icon: string }[] = [
+    { key: "checkin", label: "Check-in", icon: "✅" },
+    { key: "leaderboard", label: "Ranking", icon: "🏆" },
+    { key: "calendar", label: "Kalender", icon: "📅" },
+    { key: "badges", label: "Erfolge", icon: "🥇" },
+    { key: "rules", label: "Regeln", icon: "⚙" },
   ];
 
   async function copyCode() {
@@ -84,8 +85,32 @@ export default function ChallengePage() {
     router.replace("/login");
   }
 
+  async function resetChallenge() {
+    if (
+      !confirm(
+        "Wirklich ALLE Check-ins und Erfolge dieser Challenge löschen? Das gilt für alle Teilnehmer und kann nicht rückgängig gemacht werden."
+      )
+    )
+      return;
+    const { data } = await supabase.auth.getSession();
+    const res = await fetch("/api/reset-challenge", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${data.session?.access_token}`,
+      },
+      body: JSON.stringify({ challenge_id: id }),
+    });
+    if (res.ok) {
+      window.location.reload();
+    } else {
+      const body = await res.json().catch(() => ({}));
+      alert(`Fehler: ${body.error ?? res.status}`);
+    }
+  }
+
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 pb-28">
       <div className="flex items-center justify-between">
         <Link href="/dashboard" className="text-sm text-[#3A2E1B]/70 hover:text-amber-700">
           ← Zurück
@@ -123,6 +148,14 @@ export default function ChallengePage() {
           >
             ⚙ Regeln & Einstellungen
           </button>
+          {isOwner && (
+            <button
+              className="btn-ghost w-full border-red-700 text-red-700"
+              onClick={resetChallenge}
+            >
+              🗑 Spielstand zurücksetzen
+            </button>
+          )}
           <button className="btn-ghost w-full" onClick={logout}>
             Abmelden
           </button>
@@ -152,21 +185,29 @@ export default function ChallengePage() {
 
       <PushSetup userId={userId} />
 
-      <div className="flex gap-2 overflow-x-auto pb-1.5 pr-1.5">
-        {tabs.map((t) => (
-          <button
-            key={t.key}
-            onClick={() => setTab(t.key)}
-            className={
-              tab === t.key
-                ? "btn whitespace-nowrap text-sm"
-                : "btn-ghost whitespace-nowrap text-sm"
-            }
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
+      {/* Bottom-Navigation wie in nativen Apps */}
+      <nav className="fixed bottom-0 left-0 right-0 z-40 border-t-2 border-[#3A2E1B] bg-[#FBF3DF] pb-[env(safe-area-inset-bottom)]">
+        <div className="mx-auto flex max-w-3xl">
+          {tabs.map((t) => (
+            <button
+              key={t.key}
+              onClick={() => setTab(t.key)}
+              className={`flex flex-1 flex-col items-center gap-0.5 py-2 transition ${
+                tab === t.key ? "bg-amber-100" : ""
+              }`}
+            >
+              <Emoji e={t.icon} size={22} />
+              <span
+                className={`text-[11px] font-semibold ${
+                  tab === t.key ? "text-amber-700" : "text-[#3A2E1B]/60"
+                }`}
+              >
+                {t.label}
+              </span>
+            </button>
+          ))}
+        </div>
+      </nav>
 
       {tab === "checkin" && (
         <CheckinTab

@@ -157,20 +157,15 @@ export default function CheckinTab({
       />
 
       <div className="card flex flex-wrap items-center justify-between gap-3">
-        <label className="text-sm text-[#3A2E1B]/70">
-          Tag
-          <input
-            className="input mt-1"
-            type="date"
-            value={date}
-            min={challenge.start_date}
-            max={today}
-            onChange={(e) => {
-              setDate(e.target.value);
-              onDateChange?.(e.target.value);
-            }}
-          />
-        </label>
+        <DayPager
+          date={date}
+          minDate={challenge.start_date}
+          maxDate={today}
+          onChange={(d) => {
+            setDate(d);
+            onDateChange?.(d);
+          }}
+        />
         <div className="text-right">
           <p className="text-sm text-[#3A2E1B]/70">Punkte an diesem Tag</p>
           <p
@@ -255,6 +250,67 @@ export default function CheckinTab({
       <p className="text-xs text-[#3A2E1B]/60">
         Ehrlichkeit zählt – auch die Minuspunkte eintragen!
       </p>
+    </div>
+  );
+}
+
+/* ---------- Tages-Blätterer (statt Datums-Dropdown) ---------- */
+
+function DayPager({
+  date,
+  minDate,
+  maxDate,
+  onChange,
+}: {
+  date: string;
+  minDate: string;
+  maxDate: string;
+  onChange: (d: string) => void;
+}) {
+  const shift = (days: number) => {
+    const next = toISODate(addDays(parseISODate(date), days));
+    if (next < minDate || next > maxDate) return;
+    onChange(next);
+  };
+
+  const label = parseISODate(date).toLocaleDateString("de-DE", {
+    weekday: "short",
+    day: "2-digit",
+    month: "2-digit",
+  });
+  const isToday = date === maxDate;
+
+  return (
+    <div className="flex items-center gap-2">
+      <button
+        className="btn-ghost px-3"
+        onClick={() => shift(-1)}
+        disabled={date <= minDate}
+        aria-label="Vortag"
+      >
+        ←
+      </button>
+      <div className="min-w-[7rem] text-center">
+        <p className="font-semibold">{label}</p>
+        {isToday ? (
+          <p className="text-xs text-[#3A2E1B]/60">Heute</p>
+        ) : (
+          <button
+            className="text-xs text-amber-700 underline"
+            onClick={() => onChange(maxDate)}
+          >
+            zu heute
+          </button>
+        )}
+      </div>
+      <button
+        className="btn-ghost px-3"
+        onClick={() => shift(1)}
+        disabled={date >= maxDate}
+        aria-label="Nächster Tag"
+      >
+        →
+      </button>
     </div>
   );
 }
