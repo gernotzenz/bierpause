@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { Challenge, Rule, toISODate, weekIndex } from "@/lib/types";
+import { Challenge, Rule, pointsFor, toISODate, weekIndex } from "@/lib/types";
 import Emoji from "@/components/Emoji";
 
 type Row = { user_id: string; date: string; rule_id: string; quantity: number };
@@ -43,9 +43,9 @@ export default function LeaderboardTab({
     load();
   }, [challenge.id]);
 
-  const pointsByRule = useMemo(() => {
-    const map = new Map<string, number>();
-    rules.forEach((r) => map.set(r.id, r.points));
+  const ruleById = useMemo(() => {
+    const map = new Map<string, Rule>();
+    rules.forEach((r) => map.set(r.id, r));
     return map;
   }, [rules]);
 
@@ -61,7 +61,8 @@ export default function LeaderboardTab({
         const perWeek = Array.from({ length: challenge.weeks }, () => 0);
         let total = 0;
         for (const c of mine) {
-          const p = (pointsByRule.get(c.rule_id) ?? 0) * (c.quantity ?? 1);
+          const r = ruleById.get(c.rule_id);
+          const p = r ? pointsFor(r, c.quantity ?? 1) : 0;
           total += p;
           const w = weekIndex(c.date, challenge.start_date);
           if (w >= 0 && w < challenge.weeks) perWeek[w] += p;
@@ -69,7 +70,7 @@ export default function LeaderboardTab({
         return { ...m, total, perWeek, thisWeek: perWeek[currentWeek] ?? 0 };
       })
       .sort((a, b) => b.total - a.total);
-  }, [members, checkins, pointsByRule, challenge, currentWeek]);
+  }, [members, checkins, ruleById, challenge, currentWeek]);
 
   if (loading) return <p className="text-[#3A2E1B]/70">Lade…</p>;
 

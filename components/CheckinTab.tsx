@@ -6,7 +6,9 @@ import {
   Challenge,
   Rule,
   addDays,
+  fmtPoints,
   parseISODate,
+  pointsFor,
   toISODate,
   weekIndex,
 } from "@/lib/types";
@@ -138,10 +140,10 @@ export default function CheckinTab({
 
   const dayTotal = useMemo(
     () =>
-      rules.reduce(
-        (sum, r) => sum + r.points * (checked.get(r.id) ?? 0),
-        0
-      ),
+      rules.reduce((sum, r) => {
+        const q = checked.get(r.id);
+        return q === undefined ? sum : sum + pointsFor(r, q);
+      }, 0),
     [rules, checked]
   );
 
@@ -173,7 +175,7 @@ export default function CheckinTab({
                   : "text-[#3A2E1B]/80"
               }`}
             >
-              {dayTotal > 0 ? `+${dayTotal}` : dayTotal}
+              {fmtPoints(dayTotal)}
             </p>
           </div>
         </div>
@@ -202,7 +204,7 @@ export default function CheckinTab({
           const disabled = rule.weekend_only && !isWeekend;
           const qty = checked.get(rule.id);
           const isOn = qty !== undefined;
-          const effective = rule.points * (qty ?? 1);
+          const effective = pointsFor(rule, qty ?? 1);
           return (
             <button
               key={rule.id}
@@ -237,7 +239,7 @@ export default function CheckinTab({
                   rule.points >= 0 ? "text-emerald-700" : "text-red-700"
                 }`}
               >
-                {effective > 0 ? `+${effective}` : effective}
+                {fmtPoints(effective)}
               </span>
             </button>
           );
@@ -412,12 +414,12 @@ function WeekProgress({
       .gte("date", toISODate(start))
       .lte("date", toISODate(end))
       .then(({ data }) => {
-        const points = new Map(rules.map((r) => [r.id, r.points]));
+        const byId = new Map(rules.map((r) => [r.id, r]));
         setWeekPoints(
-          ((data ?? []) as any[]).reduce(
-            (s, c) => s + (points.get(c.rule_id) ?? 0) * (c.quantity ?? 1),
-            0
-          )
+          ((data ?? []) as any[]).reduce((s, c) => {
+            const r = byId.get(c.rule_id);
+            return r ? s + pointsFor(r, c.quantity ?? 1) : s;
+          }, 0)
         );
       });
   }, [challenge, userId, rules, wk, version]);
@@ -540,7 +542,7 @@ function StravaSection({
     // Punkte pro Sportstunde: Regel-Punkte × gerundete Stunden (min. 1)
     const hours = Math.max(1, Math.round(totalMinutes / 60));
     const summary = acts.map((a) => `${a.name} (${a.minutes} min)`).join(", ");
-    const earned = sportRule!.points * hours;
+    const earned = pointsFor(sportRule!, hours);
 
     const existing = checked.get(sportRule!.id);
     if (existing !== undefined) {
@@ -566,7 +568,7 @@ function StravaSection({
       if (error) return setMsg(`Fehler: ${error.message}`);
     }
     setMsg(
-      `${summary} → ${hours} ${hours === 1 ? "Stunde" : "Stunden"} Sport eingetragen (+${earned})`
+      `${summary} → ${hours} ${hours === 1 ? "Stunde" : "Stunden"} Sport eingetragen (${fmtPoints(earned)})`
     );
     notifyBadges(challenge.id);
     onImported();
@@ -578,13 +580,13 @@ function StravaSection({
         <p className="font-semibold text-orange-700">Strava</p>
         <p className="text-xs text-[#3A2E1B]/70">
           {connected
-            ? `Verbunden als ${athlete || "Athlet"} – ${sportRule.points} Punkte pro Sportstunde`
+            ? `Verbunden als ${athlete || "Athlet"} – erste Sportstunde ${fmtPoints(sportRule.points)}, jede weitere +0,5`
             : "Verbinde Strava und übernimm Aktivitäten automatisch als Sport."}
         </p>
         {connected && sportQty !== undefined && (
           <p className="mt-1 text-xs font-semibold text-emerald-700">
             ✓ {sportQty} {sportQty === 1 ? "Stunde" : "Stunden"} Sport an diesem
-            Tag (+{sportRule.points * sportQty})
+            Tag ({fmtPoints(pointsFor(sportRule, sportQty))})
           </p>
         )}
       </div>

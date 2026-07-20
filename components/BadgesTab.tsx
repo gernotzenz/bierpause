@@ -21,7 +21,7 @@ export default function BadgesTab({
   useEffect(() => {
     supabase
       .from("checkins")
-      .select("rule_id, date")
+      .select("rule_id, date, quantity")
       .eq("challenge_id", challenge.id)
       .eq("user_id", userId)
       .then(({ data }) => {

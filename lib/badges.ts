@@ -1,9 +1,9 @@
 // Gemeinsame Badge-Logik – läuft im Browser (Erfolge-Tab) UND
 // serverseitig (Push-Benachrichtigungen). Keine Supabase-Imports hier!
 
-import { Challenge, Rule, addDays, parseISODate, toISODate } from "./types";
+import { Challenge, Rule, addDays, parseISODate, pointsFor, toISODate } from "./types";
 
-export type CheckinRow = { rule_id: string; date: string };
+export type CheckinRow = { rule_id: string; date: string; quantity?: number };
 
 export type Badge = {
   key: string;
@@ -40,10 +40,10 @@ export function computeBadges(
 
   const noAlcoholDates = new Set(byKey("no_alcohol").map((c) => c.date));
   const streak = longestStreak(noAlcoholDates);
-  const total = checkins.reduce(
-    (s, c) => s + (ruleById.get(c.rule_id)?.points ?? 0),
-    0
-  );
+  const total = checkins.reduce((s, c) => {
+    const r = ruleById.get(c.rule_id);
+    return r ? s + pointsFor(r, c.quantity ?? 1) : s;
+  }, 0);
 
   const dailyPositive = rules.filter((r) => r.points > 0 && !r.weekend_only);
   const byDate = new Map<string, Set<string>>();

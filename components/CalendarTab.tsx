@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { Challenge, Rule, toISODate } from "@/lib/types";
+import { Challenge, Rule, pointsFor, toISODate } from "@/lib/types";
 
 type Row = { date: string; rule_id: string; quantity: number };
 
@@ -47,7 +47,7 @@ export default function CalendarTab({
       const r = ruleById.get(c.rule_id);
       if (!r) continue;
       const entry = m.get(c.date) ?? { points: 0, noAlcohol: false, any: false };
-      entry.points += r.points * (c.quantity ?? 1);
+      entry.points += pointsFor(r, c.quantity ?? 1);
       entry.any = true;
       if (r.key === "no_alcohol" || r.key === "weekend_free") entry.noAlcohol = true;
       m.set(c.date, entry);

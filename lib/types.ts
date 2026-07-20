@@ -53,3 +53,23 @@ export function addDays(d: Date, n: number): Date {
   r.setDate(r.getDate() + n);
   return r;
 }
+
+/**
+ * Punkte für einen Check-in.
+ * Sport zählt degressiv: erste Stunde = Regel-Punkte, jede weitere Stunde +0,5.
+ * Alle anderen Regeln: Punkte × Menge.
+ */
+export function pointsFor(
+  rule: { key: string; points: number },
+  quantity: number
+): number {
+  const q = Math.max(1, quantity ?? 1);
+  if (rule.key === "sport") return rule.points + (q - 1) * 0.5;
+  return rule.points * q;
+}
+
+/** Punkte hübsch formatieren: +2, -5, +2,5 */
+export function fmtPoints(p: number): string {
+  const s = Number.isInteger(p) ? String(Math.abs(p)) : Math.abs(p).toFixed(1).replace(".", ",");
+  return p > 0 ? `+${s}` : p < 0 ? `-${s}` : "0";
+}

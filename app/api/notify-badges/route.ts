@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
     admin.from("point_rules").select("*").eq("challenge_id", challenge_id),
     admin
       .from("checkins")
-      .select("rule_id, date")
+      .select("rule_id, date, quantity")
       .eq("challenge_id", challenge_id)
       .eq("user_id", user.id),
     admin
@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
   const badges = computeBadges(
     chRes.data as Challenge,
     (rulesRes.data ?? []) as Rule[],
-    (checkinsRes.data ?? []) as { rule_id: string; date: string }[]
+    (checkinsRes.data ?? []) as { rule_id: string; date: string; quantity?: number }[]
   );
   const already = new Set((doneRes.data ?? []).map((b: any) => b.badge_key));
   const fresh = badges.filter((b) => b.unlocked && !already.has(b.key));
