@@ -40,13 +40,11 @@ export default function CheckinTab({
   userId,
   rules,
   onChanged,
-  onDateChange,
 }: {
   challenge: Challenge;
   userId: string;
   rules: Rule[];
   onChanged?: () => void;
-  onDateChange?: (date: string) => void;
 }) {
   const today = toISODate(new Date());
   const [date, setDate] = useState(today);
@@ -156,30 +154,30 @@ export default function CheckinTab({
         version={version}
       />
 
-      <div className="card flex flex-wrap items-center justify-between gap-3">
-        <DayPager
-          date={date}
-          minDate={challenge.start_date}
-          maxDate={today}
-          onChange={(d) => {
-            setDate(d);
-            onDateChange?.(d);
-          }}
-        />
-        <div className="text-right">
-          <p className="text-sm text-[#3A2E1B]/70">Punkte an diesem Tag</p>
-          <p
-            className={`text-3xl font-bold ${
-              dayTotal > 0
-                ? "text-emerald-700"
-                : dayTotal < 0
-                ? "text-red-700"
-                : "text-[#3A2E1B]/80"
-            }`}
-          >
-            {dayTotal > 0 ? `+${dayTotal}` : dayTotal}
-          </p>
+      <div className="card">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <DayPager
+            date={date}
+            minDate={challenge.start_date}
+            maxDate={today}
+            onChange={setDate}
+          />
+          <div className="text-right">
+            <p className="text-sm text-[#3A2E1B]/70">Punkte an diesem Tag</p>
+            <p
+              className={`text-3xl font-bold ${
+                dayTotal > 0
+                  ? "text-emerald-700"
+                  : dayTotal < 0
+                  ? "text-red-700"
+                  : "text-[#3A2E1B]/80"
+              }`}
+            >
+              {dayTotal > 0 ? `+${dayTotal}` : dayTotal}
+            </p>
+          </div>
         </div>
+        <MoodRow rules={rules} checked={checked} date={date} />
       </div>
 
       <StravaSection
@@ -250,6 +248,76 @@ export default function CheckinTab({
       <p className="text-xs text-[#3A2E1B]/60">
         Ehrlichkeit zählt – auch die Minuspunkte eintragen!
       </p>
+    </div>
+  );
+}
+
+/* ---------- Hunzn-Reaktion zum gewählten Tag ---------- */
+// drunk.png / sport.png / ok.png aus public/ – fehlt eines, bleibt nur der Text.
+
+const MOODS = {
+  drunk: {
+    title: "Oida…",
+    text: "Das kostet Punkte. Morgen wieder angreifen!",
+    color: "text-red-700",
+  },
+  sport: {
+    title: "Stark!",
+    text: "Sporteinheit im Sack – Hunzn ist stolz auf dich.",
+    color: "text-emerald-700",
+  },
+  ok: {
+    title: "Sauber unterwegs",
+    text: "Kein Bier heute. Genau so bleibt der Streak am Leben.",
+    color: "text-amber-700",
+  },
+} as const;
+
+function MoodRow({
+  rules,
+  checked,
+  date,
+}: {
+  rules: Rule[];
+  checked: Map<string, number>;
+  date: string;
+}) {
+  const has = (key: string) => {
+    const r = rules.find((r) => r.key === key);
+    return r ? checked.has(r.id) : false;
+  };
+
+  // Alkohol schlägt Sport
+  const mood: keyof typeof MOODS | null =
+    has("drunk") || has("too_many")
+      ? "drunk"
+      : has("sport")
+      ? "sport"
+      : has("no_alcohol")
+      ? "ok"
+      : null;
+
+  if (!mood) return null;
+  const m = MOODS[mood];
+
+  return (
+    <div
+      key={`${mood}-${date}`}
+      className="animate-pop mt-4 flex items-center gap-3 border-t-2 border-[#3A2E1B]/15 pt-4"
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={`/${mood}.png`}
+        alt=""
+        className="w-16 shrink-0"
+        onError={(e) => {
+          e.currentTarget.style.display = "none";
+        }}
+      />
+      <div>
+        <p className={`font-display text-sm uppercase ${m.color}`}>{m.title}</p>
+        <p className="text-sm text-[#3A2E1B]/70">{m.text}</p>
+      </div>
     </div>
   );
 }
