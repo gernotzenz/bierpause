@@ -13,6 +13,7 @@ import {
   weekIndex,
 } from "@/lib/types";
 import Emoji from "@/components/Emoji";
+import BuddyStatus from "@/components/BuddyStatus";
 
 // Meldet neue Badges an den Server (Push an die anderen Mitglieder).
 async function notifyBadges(challengeId: string) {
@@ -181,6 +182,14 @@ export default function CheckinTab({
         </div>
         <MoodRow rules={rules} checked={checked} date={date} />
       </div>
+
+      <BuddyStatus
+        challenge={challenge}
+        userId={userId}
+        rules={rules}
+        date={date}
+        version={version}
+      />
 
       <StravaSection
         challenge={challenge}

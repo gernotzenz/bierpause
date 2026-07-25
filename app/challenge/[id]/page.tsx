@@ -83,6 +83,32 @@ export default function ChallengePage() {
     router.replace("/login");
   }
 
+  async function testPush() {
+    const { data } = await supabase.auth.getSession();
+    const res = await fetch("/api/test-push", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${data.session?.access_token}`,
+      },
+      body: JSON.stringify({ challenge_id: id }),
+    });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      alert(`Fehler: ${body.error ?? res.status}`);
+    } else if (body.subscriptions === 0) {
+      alert(
+        "Keine Push-Abos gefunden. Jeder Teilnehmer muss auf seinem Gerät einmal '🔔 Aktivieren' drücken (am iPhone: App zuerst zum Home-Bildschirm hinzufügen und von dort öffnen)."
+      );
+    } else {
+      alert(
+        `${body.subscriptions} Abo(s) gefunden, ${body.sent} Push(es) verschickt${
+          body.errors ? ` – Hinweise: ${body.errors.join(", ")}` : ""
+        }. Kommt nichts an: App am Handy neu installieren und Benachrichtigungen neu aktivieren.`
+      );
+    }
+  }
+
   async function resetChallenge() {
     if (
       !confirm(
@@ -145,6 +171,9 @@ export default function ChallengePage() {
             }}
           >
             ⚙ Regeln & Einstellungen
+          </button>
+          <button className="btn-ghost w-full" onClick={testPush}>
+            🔔 Push testen
           </button>
           {isOwner && (
             <button
