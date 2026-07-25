@@ -172,17 +172,6 @@ export default function ChallengePage() {
           >
             ⚙ Regeln & Einstellungen
           </button>
-          <button className="btn-ghost w-full" onClick={testPush}>
-            🔔 Push testen
-          </button>
-          {isOwner && (
-            <button
-              className="btn-ghost w-full border-red-700 text-red-700"
-              onClick={resetChallenge}
-            >
-              🗑 Spielstand zurücksetzen
-            </button>
-          )}
           <button className="btn-ghost w-full" onClick={logout}>
             Abmelden
           </button>
@@ -221,12 +210,28 @@ export default function ChallengePage() {
         <BadgesTab challenge={challenge} userId={userId} rules={rules} />
       )}
       {tab === "rules" && (
-        <RulesTab
-          challenge={challenge}
-          isOwner={isOwner}
-          rules={rules}
-          onChanged={loadRules}
-        />
+        <>
+          <RulesTab
+            challenge={challenge}
+            isOwner={isOwner}
+            rules={rules}
+            onChanged={loadRules}
+          />
+          <div className="card space-y-3">
+            <h3 className="font-semibold">Einstellungen</h3>
+            <button className="btn-ghost w-full" onClick={testPush}>
+              🔔 Push testen
+            </button>
+            {isOwner && (
+              <button
+                className="btn-ghost w-full border-red-700 text-red-700"
+                onClick={resetChallenge}
+              >
+                🗑 Spielstand zurücksetzen
+              </button>
+            )}
+          </div>
+        </>
       )}
 
       {/* Bottom-Navigation wie in nativen Apps (sticky – zuverlässig auf iOS) */}
