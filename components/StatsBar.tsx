@@ -68,27 +68,29 @@ export default function StatsBar({
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+    <div className="grid grid-cols-4 gap-1.5">
       {stats.map((s) => (
         <div
           key={s.label}
-          className={`rounded-2xl border p-3 text-center ${
+          className={`rounded-xl border px-1 py-2 text-center ${
             s.highlight
               ? "border-amber-600 bg-amber-100"
               : "border-[#3A2E1B] bg-[#FBF3DF]"
           }`}
         >
           <div className="flex justify-center">
-            <Emoji e={s.icon} size={26} />
+            <Emoji e={s.icon} size={18} />
           </div>
           <div
-            className={`text-2xl font-bold ${
+            className={`text-base font-bold leading-tight sm:text-xl ${
               s.highlight ? "text-amber-700" : "text-[#3A2E1B]"
             }`}
           >
             {s.value}
           </div>
-          <div className="text-xs text-[#3A2E1B]/70">{s.label}</div>
+          <div className="text-[10px] leading-tight text-[#3A2E1B]/70 sm:text-xs">
+            {s.label}
+          </div>
         </div>
       ))}
     </div>
