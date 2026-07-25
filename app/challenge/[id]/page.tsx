@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
@@ -26,6 +27,9 @@ export default function ChallengePage() {
   const [copied, setCopied] = useState(false);
   const [statsVersion, setStatsVersion] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
 
   const loadRules = useCallback(async () => {
     const { data } = await supabase
@@ -134,7 +138,7 @@ export default function ChallengePage() {
   }
 
   return (
-    <div className="flex min-h-[calc(100dvh-3rem)] flex-col gap-5">
+    <div className="space-y-5 pb-28">
       <div className="flex items-center justify-between">
         <Link href="/dashboard" className="text-sm text-[#3A2E1B]/70 hover:text-amber-700">
           ← Zurück
@@ -234,29 +238,34 @@ export default function ChallengePage() {
         </>
       )}
 
-      {/* Bottom-Navigation wie in nativen Apps (sticky – zuverlässig auf iOS) */}
-      <nav className="sticky bottom-0 z-40 -mx-4 mt-auto border-t-2 border-[#3A2E1B] bg-[#FBF3DF] pb-[env(safe-area-inset-bottom)]">
-        <div className="flex">
-          {tabs.map((t) => (
-            <button
-              key={t.key}
-              onClick={() => setTab(t.key)}
-              className={`flex flex-1 flex-col items-center gap-0.5 py-2 transition ${
-                tab === t.key ? "bg-amber-100" : ""
-              }`}
-            >
-              <Emoji e={t.icon} size={22} />
-              <span
-                className={`text-[11px] font-semibold ${
-                  tab === t.key ? "text-amber-700" : "text-[#3A2E1B]/60"
-                }`}
-              >
-                {t.label}
-              </span>
-            </button>
-          ))}
-        </div>
-      </nav>
+      {/* Bottom-Navigation: per Portal direkt am <body>, damit position:fixed
+          von keinem Eltern-Layout beeinflusst werden kann (iOS-Bugfix) */}
+      {mounted &&
+        createPortal(
+          <nav className="fixed inset-x-0 bottom-0 z-50 border-t-2 border-[#3A2E1B] bg-[#FBF3DF] pb-[env(safe-area-inset-bottom)]">
+            <div className="mx-auto flex max-w-3xl">
+              {tabs.map((t) => (
+                <button
+                  key={t.key}
+                  onClick={() => setTab(t.key)}
+                  className={`flex flex-1 flex-col items-center gap-0.5 py-2 transition ${
+                    tab === t.key ? "bg-amber-100" : ""
+                  }`}
+                >
+                  <Emoji e={t.icon} size={22} />
+                  <span
+                    className={`text-[11px] font-semibold ${
+                      tab === t.key ? "text-amber-700" : "text-[#3A2E1B]/60"
+                    }`}
+                  >
+                    {t.label}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </nav>,
+          document.body
+        )}
     </div>
   );
 }
