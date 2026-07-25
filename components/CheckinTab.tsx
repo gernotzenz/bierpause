@@ -157,8 +157,8 @@ export default function CheckinTab({
         version={version}
       />
 
-      <div className="card">
-        <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="card py-3">
+        <div className="flex items-center justify-between gap-2">
           <DayPager
             date={date}
             minDate={challenge.start_date}
@@ -166,9 +166,11 @@ export default function CheckinTab({
             onChange={setDate}
           />
           <div className="text-right">
-            <p className="text-sm text-[#3A2E1B]/70">Punkte an diesem Tag</p>
+            <p className="text-[10px] uppercase tracking-wide text-[#3A2E1B]/60">
+              Punkte
+            </p>
             <p
-              className={`text-3xl font-bold ${
+              className={`text-2xl font-bold leading-none ${
                 dayTotal > 0
                   ? "text-emerald-700"
                   : dayTotal < 0
@@ -360,22 +362,22 @@ function DayPager({
   const isToday = date === maxDate;
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-1.5">
       <button
-        className="btn-ghost px-3"
+        className="btn-ghost px-2.5 py-1"
         onClick={() => shift(-1)}
         disabled={date <= minDate}
         aria-label="Vortag"
       >
         ←
       </button>
-      <div className="min-w-[7rem] text-center">
-        <p className="font-semibold">{label}</p>
+      <div className="min-w-[5.5rem] text-center">
+        <p className="text-sm font-semibold leading-tight">{label}</p>
         {isToday ? (
-          <p className="text-xs text-[#3A2E1B]/60">Heute</p>
+          <p className="text-[10px] text-[#3A2E1B]/60">Heute</p>
         ) : (
           <button
-            className="text-xs text-amber-700 underline"
+            className="text-[10px] text-amber-700 underline"
             onClick={() => onChange(maxDate)}
           >
             zu heute
@@ -383,7 +385,7 @@ function DayPager({
         )}
       </div>
       <button
-        className="btn-ghost px-3"
+        className="btn-ghost px-2.5 py-1"
         onClick={() => shift(1)}
         disabled={date >= maxDate}
         aria-label="Nächster Tag"
