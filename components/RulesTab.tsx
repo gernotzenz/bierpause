@@ -65,7 +65,7 @@ export default function RulesTab({
               <span>
                 {r.label}
                 {r.weekend_only && (
-                  <span className="ml-2 text-xs text-[#3A2E1B]/60">(nur Sa/So)</span>
+                  <span className="ml-2 text-xs text-[#3A2E1B]/60">(automatisch bei Sa+So ohne Alkohol)</span>
                 )}
               </span>
               <span
