@@ -86,12 +86,51 @@ export default function CheckinTab({
     load();
   }, [load]);
 
-  const dow = parseISODate(date).getDay(); // 0 = So, 6 = Sa
-  const isWeekend = dow === 0 || dow === 6;
+  // Wochenend-Bonus automatisch: Sa+So beide "kein Alkohol" → Bonus auf den Sonntag
+  async function syncWeekendBonus(d: string) {
+    const weekendRule = rules.find((r) => r.key === "weekend_free");
+    const noAlcRule = rules.find((r) => r.key === "no_alcohol");
+    if (!weekendRule || !noAlcRule) return;
+    const dow = parseISODate(d).getDay();
+    if (dow !== 6 && dow !== 0) return;
+    const sat = dow === 6 ? d : toISODate(addDays(parseISODate(d), -1));
+    const sun = dow === 0 ? d : toISODate(addDays(parseISODate(d), 1));
+
+    const { data } = await supabase
+      .from("checkins")
+      .select("rule_id, date")
+      .eq("challenge_id", challenge.id)
+      .eq("user_id", userId)
+      .in("date", [sat, sun])
+      .in("rule_id", [weekendRule.id, noAlcRule.id]);
+    const rows = (data ?? []) as { rule_id: string; date: string }[];
+    const dry = (day: string) =>
+      rows.some((c) => c.date === day && c.rule_id === noAlcRule.id);
+    const hasBonus = rows.some((c) => c.rule_id === weekendRule.id);
+
+    if (dry(sat) && dry(sun) && !hasBonus) {
+      await supabase.from("checkins").insert({
+        challenge_id: challenge.id,
+        user_id: userId,
+        rule_id: weekendRule.id,
+        date: sun,
+        quantity: 1,
+      });
+    } else if ((!dry(sat) || !dry(sun)) && hasBonus) {
+      await supabase
+        .from("checkins")
+        .delete()
+        .eq("challenge_id", challenge.id)
+        .eq("user_id", userId)
+        .eq("rule_id", weekendRule.id)
+        .in("date", [sat, sun]);
+    }
+  }
 
   async function toggle(rule: Rule) {
     setBusy(rule.id);
     setError(null);
+    let didCheck = false;
     if (checked.has(rule.id)) {
       const { error } = await supabase
         .from("checkins")
@@ -112,6 +151,7 @@ export default function CheckinTab({
       if (error) {
         setError(error.message);
       } else {
+        didCheck = true;
         // Widersprüche am selben Tag auflösen (kein Alkohol vs. Bier getrunken)
         const conflictKeys = DIRTY_KEYS.includes(rule.key)
           ? CLEAN_KEYS
@@ -130,9 +170,10 @@ export default function CheckinTab({
             .eq("date", date)
             .in("rule_id", conflictIds);
         }
-        notifyBadges(challenge.id);
       }
     }
+    await syncWeekendBonus(date);
+    if (didCheck) notifyBadges(challenge.id);
     setBusy(null);
     setVersion((v) => v + 1);
     onChanged?.();
@@ -183,6 +224,15 @@ export default function CheckinTab({
           </div>
         </div>
         <MoodRow rules={rules} checked={checked} date={date} />
+        {(() => {
+          const wr = rules.find((r) => r.weekend_only);
+          return wr && checked.has(wr.id) ? (
+            <p className="mt-3 flex items-center gap-2 border-t-2 border-[#3A2E1B]/15 pt-3 text-sm font-semibold text-emerald-700">
+              <Emoji e="🏖" size={18} /> Ganzes Wochenende alkoholfrei – Bonus{" "}
+              {fmtPoints(pointsFor(wr, 1))}!
+            </p>
+          ) : null;
+        })()}
       </div>
 
       <BuddyStatus
@@ -210,9 +260,10 @@ export default function CheckinTab({
 
       <div className="space-y-2">
         {rules
-          .filter((r) => !(r.key === "sport" && stravaConnected))
+          .filter(
+            (r) => !(r.key === "sport" && stravaConnected) && !r.weekend_only
+          )
           .map((rule) => {
-          const disabled = rule.weekend_only && !isWeekend;
           const qty = checked.get(rule.id);
           const isOn = qty !== undefined;
           const effective = pointsFor(rule, qty ?? 1);
@@ -220,14 +271,14 @@ export default function CheckinTab({
             <button
               key={rule.id}
               onClick={() => toggle(rule)}
-              disabled={disabled || busy === rule.id}
+              disabled={busy === rule.id}
               className={`flex w-full items-center justify-between rounded-2xl border-2 p-4 text-left transition ${
                 isOn
                   ? rule.points >= 0
                     ? "border-emerald-700 bg-emerald-100"
                     : "border-red-700 bg-red-100"
                   : "border-[#3A2E1B] bg-[#FBF3DF] hover:border-[#8A6E2F]"
-              } ${disabled ? "opacity-40" : ""}`}
+              }`}
             >
               <span className="flex items-center gap-2">
                 <Emoji e={isOn ? "✅" : "⬜"} size={20} />
@@ -236,11 +287,6 @@ export default function CheckinTab({
                   {isOn && qty! > 1 && (
                     <span className="ml-2 text-xs font-semibold text-amber-700">
                       ×{qty}
-                    </span>
-                  )}
-                  {rule.weekend_only && (
-                    <span className="ml-2 text-xs text-[#3A2E1B]/60">
-                      (nur Sa/So)
                     </span>
                   )}
                 </span>
@@ -306,7 +352,7 @@ function MoodRow({
       ? "drunk"
       : has("sport")
       ? "sport"
-      : has("no_alcohol")
+      : has("no_alcohol") || has("weekend_free")
       ? "ok"
       : null;
 
